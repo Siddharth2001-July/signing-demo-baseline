@@ -1,0 +1,48 @@
+/* PSPDFKit Overrides */
+.PSPDFKit-Form-Creator-Toolbar,
+.PSPDFKit-Form-Creator-Popover {
+  display: none !important;
+}
+
+.PSPDFKit-Annotation-Widget-Signature > figure,
+.PSPDFKit-Annotation-Widget-Signature-Badge {
+  display: none;
+}
+
+/* Custom Renderers */
+.custom-annotation-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0px;
+}
+
+.custom-signature-wrapper {
+  border: 1px solid #dbdee4;
+}
+
+.custom-annotation-name {
+  background-color: #fff;
+  color: #3d434e;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-inline: 3px;
+}
+
+.signed .custom-annotation-wrapper {
+  visibility: hidden;
+}
+
+.custom-signature {
+  align-items: center;
+  padding: 9px 0 5px;
+}
+
+.custom-signature-label {
+  color: rgba(0, 0, 0, 0.8);
+  font-weight: 800;
+  opacity: 1.0;
+  margin-top: 0px;
+}
