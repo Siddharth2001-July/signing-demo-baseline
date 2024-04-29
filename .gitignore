@@ -9,6 +9,10 @@
 # testing
 /coverage
 
+
+#PSPDFKit libriaries 
+public/pspdfkit-lib/
+
 # next.js
 /.next/
 /out/
