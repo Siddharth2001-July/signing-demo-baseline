@@ -51,6 +51,47 @@ export const metadata = {
   },
 };
 
+const SFProText = localFont({
+  src: [
+    {
+      path: "../fonts/SFProText-Light.ttf",
+      weight: "300",
+    },
+    {
+      path: "../fonts/SFProText-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../fonts/SFProText-Medium.ttf",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../fonts/SFProText-Semibold.ttf",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../fonts/SFProText-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-sfprotext",
+});
+
+const SFProDisplay = localFont({
+  src: [
+    {
+      path: "../fonts/SFDisplay-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+  ],
+  variable: "--font-sfprodisplay",
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -59,6 +100,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
+      className={SFProText.variable+" "+SFProDisplay.variable}
       >
         <nav style={{ display: "flex", alignItems: "center", margin: "10px" }}>
           <ImageComponent

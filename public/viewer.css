@@ -18,7 +18,7 @@
 }
 
 .custom-signature-wrapper {
-  border: 1px solid #dbdee4;
+  border: 0.5px solid #dbdee4;
 }
 
 .custom-annotation-name {
@@ -28,7 +28,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-inline: 3px;
+  padding-inline: 0px;
 }
 
 .signed .custom-annotation-wrapper {

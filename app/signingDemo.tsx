@@ -9,7 +9,12 @@ import ImageComponent from "next/image";
 import iconPlusGray from "@/public/icon-plus-gray.png";
 import { ActionButton, ListOption, Select, Checkbox } from "@baseline-ui/core";
 
-import {handleAnnotatitonCreation, handleAnnotatitonDelete, TOOLBAR_ITEMS, getAnnotationRenderers} from "../utils/helpers";
+import {
+  handleAnnotatitonCreation,
+  handleAnnotatitonDelete,
+  TOOLBAR_ITEMS,
+  getAnnotationRenderers,
+} from "../utils/helpers";
 
 /**
  * SignDemo component.
@@ -108,8 +113,8 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         annotationType === AnnotationTypeEnum.SIGNATURE ||
         annotationType === AnnotationTypeEnum.INITIAL
           ? 60
-          : 40,
-      width: annotationType === AnnotationTypeEnum.INITIAL ? 150 : 200,
+          : 40, 
+      width: annotationType === AnnotationTypeEnum.INITIAL ? 100 : 200,
     });
     const pageRect = inst.transformContentClientToPageSpace(
       clientRect,
@@ -176,7 +181,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         return {
           maintainAspectRatio: true,
           responsive: false,
-          maxWidth: 192,
+          maxWidth: 250,
           maxHeight: 80,
           minWidth: 100,
           minHeight: 40,
@@ -306,7 +311,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     }
   };
 
-  // Tracking whether add Signature/Initial UI 
+  // Tracking whether add Signature/Initial UI
   let isCreateInitial: boolean = false;
 
   // Load PSPDFKit
@@ -324,12 +329,11 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         ui: {
           [Interfaces.CreateSignature]: ({ props }: any) => {
             return {
-              content: createBlock(Recipes.CreateSignature, props, ({ ui }) => {
-                
+              content: createBlock(Recipes.CreateSignature, props, ({ ui }:any) => {
                 if (isCreateInitial) {
-
                   ui.getBlockById("title").children = "Create Initial";
-                  ui.getBlockById("save-signature-checkbox")._props.label = "Save Initial";
+                  ui.getBlockById("save-signature-checkbox")._props.label =
+                    "Save Initial";
 
                   const textInput = ui.getBlockById("signature-text-input");
                   textInput._props.placeholder = "Initial";
@@ -360,19 +364,12 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         toolbarItems: TOOLBAR_ITEMS as ToolbarItem[],
         disableTextSelection: true,
         customRenderers: {
-          Annotation: ({ annotation }) =>
+          Annotation: ({ annotation }:any) =>
             getAnnotationRenderers({
               annotation,
             }),
         },
         styleSheets: [`/viewer.css`],
-        electronicSignatures: {
-          creationModes: [
-            PSPDFKit.ElectronicSignatureCreationMode.DRAW,
-            PSPDFKit.ElectronicSignatureCreationMode.IMAGE,
-            PSPDFKit.ElectronicSignatureCreationMode.TYPE,
-          ],
-        },
       }).then(async function (inst: Instance) {
         setInstance(inst);
 
@@ -423,7 +420,6 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         });
 
         inst.addEventListener("storedSignatures.create", async (annotation) => {
-
           // Logic for showing signatures and intials in the UI
           if (isCreateInitial) {
             setSessionInitials([...sessionInitials, annotation]);
@@ -558,7 +554,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                 onDragStart={onDragStart}
                 onDragEnd={onDragEnd}
               />
-               <DraggableAnnotation
+              <DraggableAnnotation
                 className="mt-5"
                 type={AnnotationTypeEnum.INITIAL}
                 label="Initial"
@@ -596,7 +592,7 @@ const RedCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ color }) => {
     : "";
   // Parse the JSON string into an object
   const colorObject = JSON.parse(jsonString);
-  console.log("Color: ", colorObject);
+  //console.log("Color: ", colorObject);
   return (
     <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
       <circle
@@ -634,6 +630,9 @@ const DraggableAnnotation = ({
     case AnnotationTypeEnum.DATE:
       icon = iconDate;
       break;
+    case AnnotationTypeEnum.INITIAL:
+      icon = iconSignature;
+      break;
     default:
       icon = iconName;
       break;
@@ -646,18 +645,19 @@ const DraggableAnnotation = ({
       onDragEnd={(e) => onDragEnd(e, type)}
       style={{
         display: "flex",
-        margin: "25px 3px",
+        margin: "25px 5px",
         background: "#eaeff2",
-        padding: "1.5rem 0px",
+        padding: "1.2rem 0px",
         borderRadius: "30px",
         cursor: "move",
+        justifyContent: "space-between", // Add this line
       }}
     >
-      <div style={{ margin: "0 2.0rem" }}>
+      <div style={{ marginLeft: "2.5rem" }}>
         <ImageComponent src={icon} width={22} id={id} alt={id} />
-        <span style={{ margin: "0px 1.5rem" }}>{label}</span>
+        <span style={{ margin: "0px 0.5rem" }}>{label}</span>
       </div>
-      <div style={{ marginLeft: "3.0rem" }}>
+      <div style={{ marginRight: "2.0rem" }}>
         <ImageComponent src={iconPlusGray} width={18} alt="plus icon" />
       </div>
     </div>

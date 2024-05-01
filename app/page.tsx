@@ -25,7 +25,7 @@ const App: React.FC = () => {
   const [currUser, setCurrUser] = useState(allUsers[0]);
   useEffect(() => {
     setTimeout(() => {
-      console.log("Setting current user to Signer");
+      //console.log("Setting current user to Signer");
       //setCurrUser(allUsers[1]);
     }, 5 * 1000);
   }, []);
