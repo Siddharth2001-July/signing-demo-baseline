@@ -2,18 +2,29 @@
 import PSPDFKit, { Color, Instance, Rect, ToolbarItem } from "pspdfkit";
 import { useEffect, useRef, useState } from "react";
 import { AnnotationTypeEnum, User } from "../utils/types";
-import iconSignature from "@/public/icon-signature.png";
-import iconName from "@/public/icon-name.svg";
+import iconSignature from "@/public/pen.png";
+import iconName from "@/public/user.png";
 import iconDate from "@/public/icon-date.svg";
 import ImageComponent from "next/image";
 import iconPlusGray from "@/public/icon-plus-gray.png";
-import { ActionButton, ListOption, Select, Checkbox } from "@baseline-ui/core";
+import {
+  ActionButton,
+  ListOption,
+  Select,
+  Checkbox,
+  Separator,
+} from "@baseline-ui/core";
 
 import {
   handleAnnotatitonCreation,
   handleAnnotatitonDelete,
   TOOLBAR_ITEMS,
   getAnnotationRenderers,
+  //updateSignHereWidget,
+  initialsSVG,
+  signSVG,
+  personSVG,
+  dateSVG,
 } from "../utils/helpers";
 
 /**
@@ -67,8 +78,8 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   >([]);
 
   // For Custom Add Signature / Intitial field appearance
-  let [sessionSignatures, setSessionSignatures] = useState<any>([]);
-  let [sessionInitials, setSessionInitials] = useState<any>([]);
+  const [sessionSignatures, setSessionSignatures] = useState<any>([]);
+  const [sessionInitials, setSessionInitials] = useState<any>([]);
 
   function onDragStart(event: React.DragEvent<HTMLDivElement>, type: string) {
     const instantId = PSPDFKit.generateInstantId();
@@ -113,8 +124,8 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         annotationType === AnnotationTypeEnum.SIGNATURE ||
         annotationType === AnnotationTypeEnum.INITIAL
           ? 60
-          : 40, 
-      width: annotationType === AnnotationTypeEnum.INITIAL ? 100 : 200,
+          : 40,
+      width: annotationType === AnnotationTypeEnum.INITIAL ? 70 : 120,
     });
     const pageRect = inst.transformContentClientToPageSpace(
       clientRect,
@@ -165,7 +176,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         fontSize: 14,
         horizontalAlign: "center",
         verticalAlign: "center",
-        isEditable: true,
+        isEditable: false,
         backgroundColor: signee.color,
       });
       await inst.create(text);
@@ -179,16 +190,31 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     inst.setOnAnnotationResizeStart((eve) => {
       if (eve.annotation instanceof PSPDFKit.Annotations.WidgetAnnotation) {
         return {
-          maintainAspectRatio: true,
-          responsive: false,
+          //maintainAspectRatio: true,
+          //responsive: false,
           maxWidth: 250,
-          maxHeight: 80,
-          minWidth: 100,
-          minHeight: 40,
+          maxHeight: 100,
+          minWidth: 70,
+          minHeight: 30,
+        };
+      } else if (
+        eve.annotation instanceof PSPDFKit.Annotations.TextAnnotation
+      ) {
+        return {
+          //maintainAspectRatio: true,
+          //responsive: false,
+          maxWidth: 250,
+          maxHeight: 100,
+          minWidth: 70,
+          minHeight: 30,
         };
       }
     });
   };
+
+  const [isTextAnnotationMovable, setIsTextAnnotationMovable] = useState(false);
+  const isTextAnnotationMovableRef = useRef(isTextAnnotationMovable);
+  isTextAnnotationMovableRef.current = isTextAnnotationMovable;
 
   const onChangeReadyToSign = async (value: boolean) => {
     if (instance) {
@@ -198,6 +224,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           instance.setViewState((viewState) =>
             viewState.set("interactionMode", PSPDFKit.InteractionMode.PAN)
           );
+          setIsTextAnnotationMovable(false);
         } else {
           instance.setViewState((viewState) =>
             viewState.set(
@@ -205,11 +232,13 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
               PSPDFKit.InteractionMode.FORM_CREATOR
             )
           );
+          setIsTextAnnotationMovable(true);
         }
       } else {
         instance.setViewState((viewState) =>
           viewState.set("interactionMode", PSPDFKit.InteractionMode.PAN)
         );
+        setIsTextAnnotationMovable(false);
       }
     }
   };
@@ -329,32 +358,36 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         ui: {
           [Interfaces.CreateSignature]: ({ props }: any) => {
             return {
-              content: createBlock(Recipes.CreateSignature, props, ({ ui }:any) => {
-                if (isCreateInitial) {
-                  ui.getBlockById("title").children = "Create Initial";
-                  ui.getBlockById("save-signature-checkbox")._props.label =
-                    "Save Initial";
+              content: createBlock(
+                Recipes.CreateSignature,
+                props,
+                ({ ui }: any) => {
+                  if (isCreateInitial) {
+                    ui.getBlockById("title").children = "Create Initial";
+                    ui.getBlockById("save-signature-checkbox")._props.label =
+                      "Save Initial";
 
-                  const textInput = ui.getBlockById("signature-text-input");
-                  textInput._props.placeholder = "Initial";
-                  textInput._props.label = "Intial here";
-                  textInput._props.clearLabel = "Clear initial";
+                    const textInput = ui.getBlockById("signature-text-input");
+                    textInput._props.placeholder = "Initial";
+                    textInput._props.label = "Intial here";
+                    textInput._props.clearLabel = "Clear initial";
 
-                  const freehand = ui.getBlockById("freehand-canvas");
-                  freehand._props.placeholder = "Intial here";
-                  freehand._props.clearLabel = "Clear initial";
+                    const freehand = ui.getBlockById("freehand-canvas");
+                    freehand._props.placeholder = "Intial here";
+                    freehand._props.clearLabel = "Clear initial";
 
-                  const fontselect = ui.getBlockById("font-selector");
-                  if (fontselect._props.items[0].label == "Signature") {
-                    fontselect._props.items = fontselect._props.items.map(
-                      (item: any) => {
-                        return { id: item.id, label: "Initial" };
-                      }
-                    );
+                    const fontselect = ui.getBlockById("font-selector");
+                    if (fontselect._props.items[0].label == "Signature") {
+                      fontselect._props.items = fontselect._props.items.map(
+                        (item: any) => {
+                          return { id: item.id, label: "Initial" };
+                        }
+                      );
+                    }
                   }
+                  return ui.createComponent();
                 }
-                return ui.createComponent();
-              }).createComponent(),
+              ).createComponent(),
             };
           },
         },
@@ -364,7 +397,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         toolbarItems: TOOLBAR_ITEMS as ToolbarItem[],
         disableTextSelection: true,
         customRenderers: {
-          Annotation: ({ annotation }:any) =>
+          Annotation: ({ annotation }: any) =>
             getAnnotationRenderers({
               annotation,
             }),
@@ -411,6 +444,14 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             isCreateInitial = false;
           }
           inst.setStoredSignatures(PSPDFKit.Immutable.List(annotationsToLoad));
+
+          if (
+            !isTextAnnotationMovableRef.current &&
+            event.annotation instanceof PSPDFKit.Annotations.TextAnnotation
+          ) {
+            //@ts-ignore
+            event.preventDefault();
+          }
         });
         let formDesignMode = !1;
 
@@ -471,6 +512,24 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             mySignatureIdsRef.current = updatedAnnotationIds;
           }
         );
+
+        // const scrollElement =
+        //   inst.contentDocument.querySelector(".PSPDFKit-Scroll");
+
+        // if (scrollElement === null) console.log("Scroll element not found");
+
+        // //@ts-ignore
+        // scrollElement.addEventListener("scroll", updateSignHereWidget(inst));
+        // // Update the "Sign Here" widget when someone signs
+        // inst.addEventListener("annotations.change", () => {
+        //   updateSignHereWidget(inst);
+        // });
+        // // Update widget with delay to make it visually pop
+        // window.setTimeout(updateSignHereWidget, 1e3);
+
+        // inst.exportInstantJSON().then((data) => {
+        //   localStorage.setItem("document", JSON.stringify(data));
+        // });
       });
     }
   }, []);
@@ -488,87 +547,110 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           alignItems: "top",
         }}
       >
-        <div style={{ margin: "20px", width: "300px" }}>
-          <h2 style={{ margin: "10px 0" }}>Current user :</h2>
-          <Select
-            items={users.map((user) => {
-              return {
-                id: user.id.toString(),
-                label: user.name,
-                icon: () => <RedCircleIcon color={user.color.toString()} />,
-              } as ListOption;
-            })}
-            aria-label="Choose Stroke Style"
-            selectedKey={currUser.id.toString()}
-            onSelectionChange={
-              ((selected: any) => {
-                userChange(users.find((user) => user.id == selected) as User);
-              }) as any
-            }
-          />
+        <div
+          style={{
+            margin: "10px",
+            width: "20%",
+            background: "#f8f8f8",
+            padding: "10px",
+            borderRadius: "25px",
+          }}
+        >
+          <div style={{ margin: "25px 0px" }}>
+            <h3 style={{ margin: "10px 0" }}>Current user</h3>
+            <Select
+              items={users.map((user) => {
+                return {
+                  id: user.id.toString(),
+                  label: user.name,
+                  icon: () => <RedCircleIcon color={user.color.toString()} />,
+                } as ListOption;
+              })}
+              aria-label="Choose Stroke Style"
+              selectedKey={currUser.id.toString()}
+              onSelectionChange={
+                ((selected: any) => {
+                  userChange(users.find((user) => user.id == selected) as User);
+                }) as any
+              }
+            />
+          </div>
           {/* Side panel */}
           {isVisible && (
             <>
-              <ActionButton
-                label={"Add Signee"}
-                size="md"
-                onPress={addSignee}
-                style={{ margin: "50px 0px" }}
-              />
-              <Checkbox
-                label="Ready to sign"
-                isSelected={readyToSign}
-                onChange={(e) => onChangeReadyToSign(e)}
-              />
-              <h2 style={{ margin: "10px 0" }}>Select signee : </h2>
-              <Select
-                items={users.map((user) => {
-                  return {
-                    id: user.id.toString(),
-                    label: user.name,
-                    icon: () => <RedCircleIcon color={user.color.toString()} />,
-                  } as ListOption;
-                })}
-                aria-label="Choose Stroke Style"
-                selectedKey={currSignee.id.toString()}
-                onSelectionChange={
-                  ((selected: any) => {
-                    signeeChanged(
-                      users.find((user) => user.id == selected) as User
-                    );
-                  }) as any
-                }
-              />
-              {/* Uncomment this to add draggable name field */}
-              <DraggableAnnotation
-                className="mt-5"
-                type={AnnotationTypeEnum.NAME}
-                label="Name"
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-              />
-              <DraggableAnnotation
-                className="mt-5"
-                type={AnnotationTypeEnum.SIGNATURE}
-                label="Signature"
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-              />
-              <DraggableAnnotation
-                className="mt-5"
-                type={AnnotationTypeEnum.INITIAL}
-                label="Initial"
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-              />
-              {/* Uncomment this to add draggable date field */}
-              <DraggableAnnotation
-                className="mt-5"
-                type={AnnotationTypeEnum.DATE}
-                label="Date"
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-              />
+              <Separator variant="secondary" />
+              <div style={{ margin: "25px 0px" }}>
+                <Checkbox
+                  label="Ready to sign"
+                  isSelected={readyToSign}
+                  onChange={(e) => onChangeReadyToSign(e)}
+                  style={{ margin: "0px 0px 25px 0px" }}
+                />
+                <Select
+                  label="Select signee"
+                  items={users.map((user) => {
+                    return {
+                      id: user.id.toString(),
+                      label: user.name,
+                      icon: () => (
+                        <RedCircleIcon color={user.color.toString()} />
+                      ),
+                    } as ListOption;
+                  })}
+                  selectedKey={currSignee.id.toString()}
+                  onSelectionChange={
+                    ((selected: any) => {
+                      signeeChanged(
+                        users.find((user) => user.id == selected) as User
+                      );
+                    }) as any
+                  }
+                />
+                <ActionButton
+                  label={"Add Signee"}
+                  size="md"
+                  onPress={addSignee}
+                  style={{ margin: "25px 0px 0px 0px" }}
+                />
+              </div>
+              <Separator variant="secondary" />
+              <div style={{ margin: "25px 0px" }}>
+                <h5>Standard Fields</h5>
+                {/* Uncomment this to add draggable name field */}
+                <DraggableAnnotation
+                  className="mt-5"
+                  type={AnnotationTypeEnum.NAME}
+                  label="Name"
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                  userColor={currSignee.color}
+                />
+                <DraggableAnnotation
+                  className="mt-5"
+                  type={AnnotationTypeEnum.SIGNATURE}
+                  label="Signature"
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                  userColor={currSignee.color}
+                />
+                <DraggableAnnotation
+                  className="mt-5"
+                  type={AnnotationTypeEnum.INITIAL}
+                  label="Initial"
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                  userColor={currSignee.color}
+                />
+                {/* Uncomment this to add draggable date field */}
+                <DraggableAnnotation
+                  className="mt-5"
+                  type={AnnotationTypeEnum.DATE}
+                  label="Date"
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                  userColor={currSignee.color}
+                />
+              </div>
             </>
           )}
         </div>
@@ -611,30 +693,32 @@ const DraggableAnnotation = ({
   label,
   onDragStart,
   onDragEnd,
+  userColor,
 }: {
   className: string;
   type: string;
   label: string;
   onDragStart: any;
   onDragEnd: any;
+  userColor: any;
 }) => {
   const id = `${type}-icon`;
-  let icon = null;
+  let icon = signSVG;
   switch (type) {
     case AnnotationTypeEnum.NAME:
-      icon = iconName;
+      icon = personSVG;
       break;
     case AnnotationTypeEnum.SIGNATURE:
-      icon = iconSignature;
+      icon = signSVG;
       break;
     case AnnotationTypeEnum.DATE:
-      icon = iconDate;
+      icon = dateSVG;
       break;
     case AnnotationTypeEnum.INITIAL:
-      icon = iconSignature;
+      icon = initialsSVG;
       break;
     default:
-      icon = iconName;
+      icon = signSVG;
       break;
   }
 
@@ -644,21 +728,27 @@ const DraggableAnnotation = ({
       onDragStart={(e) => onDragStart(e, type)}
       onDragEnd={(e) => onDragEnd(e, type)}
       style={{
-        display: "flex",
-        margin: "25px 5px",
-        background: "#eaeff2",
-        padding: "1.2rem 0px",
-        borderRadius: "30px",
+        // display: "flex",
+        margin: "15px 0px",
+        padding: "0rem 0px",
         cursor: "move",
-        justifyContent: "space-between", // Add this line
       }}
     >
-      <div style={{ marginLeft: "2.5rem" }}>
-        <ImageComponent src={icon} width={22} id={id} alt={id} />
+      <div style={{ marginLeft: "0.5rem" }}>
+        <span
+          style={{
+            border: "1.5px solid rgb(184, 134, 11)",
+            borderRadius: "3px",
+            maxHeight: "22px",
+            marginInlineEnd: "8px",
+            padding: "3px",
+            backgroundColor: `rgb(${userColor.r},${userColor.g},${userColor.b})`,
+          }}
+        >
+          {icon}
+        </span>
+
         <span style={{ margin: "0px 0.5rem" }}>{label}</span>
-      </div>
-      <div style={{ marginRight: "2.0rem" }}>
-        <ImageComponent src={iconPlusGray} width={18} alt="plus icon" />
       </div>
     </div>
   );

@@ -9,16 +9,23 @@ const App: React.FC = () => {
   const allUsers: User[] = [
     {
       id: 1,
-      name: "Master",
-      email: "master@email.com",
-      color: PSPDFKit.Color.LIGHT_GREEN,
+      name: "Editor 1",
+      email: "editor1@email.com",
+      color: PSPDFKit.Color.LIGHT_BLUE,
       role: "Editor",
     },
     {
       id: 2,
       name: "Signer 1",
       email: "signer1@email.com",
-      color: PSPDFKit.Color.YELLOW,
+      color: PSPDFKit.Color.LIGHT_YELLOW,
+      role: "Signer",
+    },
+    {
+      id: 3,
+      name: "Signer 2",
+      email: "signer2@email.com",
+      color: PSPDFKit.Color.LIGHT_RED,
       role: "Signer",
     },
   ];
