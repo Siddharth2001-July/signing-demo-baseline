@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Signing Demo
+
+## Overview
+
+The Signing Demo project showcases the core functionalities of PSPDFKit’s Web SDK for various document signing workflows. Built using Next.js (v14.1.4) and PSPDFKit (v2024.2.0), this project provides a practical demonstration of document signing capabilities.
 
 ## Getting Started
 
-First, run the development server:
+To get started with the Signing Demo project, follow these steps:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Clone the repository from the GitHub repository at `git clone https://github.com/Siddharth2001-July/pspdfkit-demo`.
+2. Open a terminal and navigate to the project directory.
+3. Run `npm i` to install the project dependencies.
+4. Copy the PSPDFKit for Web library assets to the public directory by running:
+`cp -R ./node_modules/pspdfkit/dist/pspdfkit-lib public/pspdfkit-lib`
+5. You should now be able to run the project locally by executing `npm run dev`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Explanation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### File Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+1. signingDemo.tsx: Contains the main logic of the Signing Demo project where PSPDFKit SDK is utilized to demonstrate signing capabilities.
+2. page.tsx: Utilizes the reusable component `SignDemo` to mimic the actual signing workflow.
 
-## Learn More
+### Components
 
-To learn more about Next.js, take a look at the following resources:
+1. SignDemo: A reusable component responsible for rendering the signing interface. This component relies on the PSPDFKit SDK to enable signing functionalities.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Properties
+1. allUsers: An array of type `User` containing all the users involved in the document signing process.
+2. user: An object of type `User` representing the currently logged-in user.
+3. User (Interface):
+3.1 role: Specifies the role of the user. Users with the role of `Editor` possess capabilities to add new signing fields, additional signers, etc.
+3.2 id: Specifies the unique id of user.
+3.3 name: Specifies the name of the user.
+3.4 email: Specifies the email of the user.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Note
 
-## Deploy on Vercel
+Currently, there is no integration with a database to store the state of the signing process, keeping the project simple and reusable.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Conclusion
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+The Signing Demo project offers a practical demonstration of PSPDFKit’s Web SDK for document signing workflows. By following the steps outlined in the documentation, users can quickly set up and explore the functionalities provided by the PSPDFKit.
