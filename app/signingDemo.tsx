@@ -24,7 +24,7 @@ import {
   initialsSVG,
   signSVG,
   personSVG,
-  dateSVG,
+  dateSVG
 } from "../utils/helpers";
 
 /**
@@ -58,6 +58,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   const [currUser, setCurrUser] = useState<User>(user);
   const currUserRef = useRef(currUser);
   currUserRef.current = currUser;
+ 
   useEffect(() => {
     setUsers(allUsers);
     setCurrUser(user);
@@ -549,15 +550,26 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
       >
         <div
           style={{
-            margin: "10px",
-            width: "20%",
-            background: "#f8f8f8",
-            padding: "10px",
-            borderRadius: "25px",
+            width: "256px",
+            background: "#ffffff",
+            borderRight: "1px solid #F0F3F9",
           }}
         >
-          <div style={{ margin: "25px 0px" }}>
-            <h3 style={{ margin: "10px 0" }}>Current user</h3>
+          <div style={{ padding: "16px", borderBottom: "1px solid #D7DCE4" }}>
+            <h3 style={{ 
+              fontFamily: "Inter",
+              fontSize: "12px",
+              fontWeight: "600",
+              lineHeight: "20px",
+              textTransform: "uppercase",
+            }}>Current user</h3>
+            <div style={{ 
+              fontFamily: "Inter",
+              fontSize: "10px",
+              fontWeight: "400",
+              lineHeight: "14px",
+              marginBottom: "10px"
+            }}>Any text upto 2 lines</div>
             <Select
               items={users.map((user) => {
                 return {
@@ -566,6 +578,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                   icon: () => <RedCircleIcon color={user.color.toString()} />,
                 } as ListOption;
               })}
+              className="input-custom-style"
               aria-label="Choose Stroke Style"
               selectedKey={currUser.id.toString()}
               onSelectionChange={
@@ -578,44 +591,54 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           {/* Side panel */}
           {isVisible && (
             <>
-              <Separator variant="secondary" />
-              <div style={{ margin: "25px 0px" }}>
+
+              <div  style={{ padding: "16px", borderBottom: "1px solid #D7DCE4" }}>
+              <h3 style={{ 
+              fontFamily: "Inter",
+              fontSize: "12px",
+              fontWeight: "600",
+              lineHeight: "20px",
+              textTransform: "uppercase",
+            }}>Signees</h3>
+            <div style={{ 
+              fontFamily: "Inter",
+              fontSize: "10px",
+              fontWeight: "400",
+              lineHeight: "14px",
+              marginBottom: "10px"
+            }}>Select a signee for whom you need to add singature</div>
                 <Checkbox
                   label="Ready to sign"
                   isSelected={readyToSign}
                   onChange={(e) => onChangeReadyToSign(e)}
                   style={{ margin: "0px 0px 25px 0px" }}
                 />
-                <Select
-                  label="Select signee"
-                  items={users.map((user) => {
-                    return {
-                      id: user.id.toString(),
-                      label: user.name,
-                      icon: () => (
-                        <RedCircleIcon color={user.color.toString()} />
-                      ),
-                    } as ListOption;
-                  })}
-                  selectedKey={currSignee.id.toString()}
-                  onSelectionChange={
-                    ((selected: any) => {
-                      signeeChanged(
-                        users.find((user) => user.id == selected) as User
-                      );
-                    }) as any
-                  }
-                />
+               <div>
+                <div>
+                  {users?.map((user) => (
+                    <div className="heading-custom-style_hover" key={user?.id} onClick= {()=> signeeChanged(user)}>
+                      {user?.name}
+                      <span className="cross">
+                        <svg width="10" height="9" viewBox="0 0 10 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M4.99991 5.43337L1.73324 8.70003C1.61102 8.82225 1.45547 8.88337 1.26658 8.88337C1.07769 8.88337 0.922133 8.82225 0.79991 8.70003C0.677688 8.57781 0.616577 8.42225 0.616577 8.23337C0.616577 8.04448 0.677688 7.88892 0.79991 7.7667L4.06658 4.50003L0.79991 1.23337C0.677688 1.11114 0.616577 0.955588 0.616577 0.766699C0.616577 0.57781 0.677688 0.422255 0.79991 0.300033C0.922133 0.17781 1.07769 0.116699 1.26658 0.116699C1.45547 0.116699 1.61102 0.17781 1.73324 0.300033L4.99991 3.5667L8.26658 0.300033C8.3888 0.17781 8.54435 0.116699 8.73324 0.116699C8.92213 0.116699 9.07769 0.17781 9.19991 0.300033C9.32213 0.422255 9.38324 0.57781 9.38324 0.766699C9.38324 0.955588 9.32213 1.11114 9.19991 1.23337L5.93324 4.50003L9.19991 7.7667C9.32213 7.88892 9.38324 8.04448 9.38324 8.23337C9.38324 8.42225 9.32213 8.57781 9.19991 8.70003C9.07769 8.82225 8.92213 8.88337 8.73324 8.88337C8.54435 8.88337 8.3888 8.82225 8.26658 8.70003L4.99991 5.43337Z" fill="#EF4444"/>
+                        </svg>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+               </div>
                 <ActionButton
-                  label={"Add Signee"}
+                  label={"+ Add New"}
                   size="md"
                   onPress={addSignee}
-                  style={{ margin: "25px 0px 0px 0px" }}
+                  className="custom-button"
+                  style={{margin: '15px 0px 0px 0px'}}
                 />
               </div>
               <Separator variant="secondary" />
-              <div style={{ margin: "25px 0px" }}>
-                <h5>Standard Fields</h5>
+              <div style={{ padding: "25px 15px" }}>
+                <h5>Add fields</h5>
+                <p className="para" style={{marginTop: '5px'}}>Add fields by drag & drop them on the document</p>
                 {/* Uncomment this to add draggable name field */}
                 <DraggableAnnotation
                   className="mt-5"
@@ -658,7 +681,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         <div
           onDragOver={handleDragOver}
           ref={containerRef}
-          style={{ height: "90vh", width: "80%" }}
+          style={{ height: "90vh", width: "calc(100% - 256px)" }}
         />
       </div>
     </div>
@@ -734,15 +757,14 @@ const DraggableAnnotation = ({
         cursor: "move",
       }}
     >
-      <div style={{ marginLeft: "0.5rem" }}>
+      <div className="heading-custom-style">
         <span
           style={{
-            border: "1.5px solid rgb(184, 134, 11)",
+            border: "1px solid #E5E5E5",
             borderRadius: "3px",
-            maxHeight: "22px",
             marginInlineEnd: "8px",
-            padding: "3px",
-            backgroundColor: `rgb(${userColor.r},${userColor.g},${userColor.b})`,
+            padding: "3px 5px",
+            background: '#F5F5F5',
           }}
         >
           {icon}
