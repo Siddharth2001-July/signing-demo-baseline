@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Signing Demo project showcases the core functionalities of PSPDFKit’s Web SDK for various document signing workflows. Built using Next.js (v14.1.4) and PSPDFKit (v2024.2.0), this project provides a practical demonstration of document signing capabilities.
+The Signing Demo project showcases the core functionalities of PSPDFKit’s Web SDK for various document signing workflows. Built using Next.js (v14.1.4) and PSPDFKit (v2024.3.0), this project provides a practical demonstration of document signing capabilities.
 
 ## Getting Started
 
