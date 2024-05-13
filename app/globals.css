@@ -41,6 +41,10 @@ body {
   margin-bottom: 10px;
 }
 
+.highlight-signee{
+  border-color: #4537de !important;
+}
+
 .heading-custom-style_hover {
   border: 1px solid #d7dce4;
   background: #ffffff;
