@@ -357,6 +357,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         UI: { createBlock, Recipes, Interfaces, Core },
       } = PSPDFKit;
       PSPDFKit.load({
+        licenseKey: process.env.NEXT_PUBLIC_LICENSE_KEY as string,
         // @ts-ignore
         ui: {
           [Interfaces.CreateSignature]: ({ props }: any) => {
