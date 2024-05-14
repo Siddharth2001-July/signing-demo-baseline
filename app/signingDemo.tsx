@@ -576,6 +576,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             borderRight: "1px solid #F0F3F9",
             overflowY: "auto",
             height: "90vh",
+            borderTop: "1px solid #D7DCE4",
           }}
         >
           <div style={{ padding: "16px", borderBottom: "1px solid #D7DCE4" }}>
@@ -706,12 +707,29 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                   style={{ margin: "15px 0px 0px 0px" }}
                 />
               </div>
-              <Separator variant="secondary" />
               <div style={{ padding: "25px 15px" }}>
-                <h5>Add fields</h5>
-                <p className="para" style={{ marginTop: "5px" }}>
-                  Add fields by drag & drop them on the document
-                </p>
+              <h3
+                  style={{
+                    fontFamily: "Inter",
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    lineHeight: "20px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Add fields
+                </h3>
+                <div
+                  style={{
+                    fontFamily: "Inter",
+                    fontSize: "10px",
+                    fontWeight: "400",
+                    lineHeight: "14px",
+                    marginBottom: "10px",
+                  }}
+                >
+                Drag & drop fields on the document
+                </div>
                 {/* Uncomment this to add draggable name field */}
                 <DraggableAnnotation
                   className="mt-5"
@@ -754,7 +772,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         <div
           onDragOver={handleDragOver}
           ref={containerRef}
-          style={{ height: "90vh", width: "calc(100% - 300px)" }}
+          style={{ height: "90vh", width: "calc(100% - 256px)", borderTop: "1px solid #D7DCE4", }}
         />
       </div>
     </div>

@@ -111,7 +111,7 @@ export default function RootLayout({
           />
           <span
             style={{
-              fontSize: "30px",
+              fontSize: "22px",
               fontWeight: "500",
               margin: "10px 10px",
             }}

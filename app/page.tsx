@@ -72,6 +72,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const ele = document.querySelector(`[aria-label= "Close"]`);
     if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>Close</span>" : "<span style='color:blue;'>Open</span>";
+    if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>v</span>" : "<span style='color:blue;'>^</span>";
   })
   const [isChatOpen, setIsChatOpen] = useState(false);
 
