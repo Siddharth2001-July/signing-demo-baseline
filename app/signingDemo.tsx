@@ -70,7 +70,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   const onPageIndexRef = useRef(onPageIndex);
   onPageIndexRef.current = onPageIndex;
 
-  const [readyToSign, setReadyToSign] = useState<boolean>(true);
+  const [readyToSign, setReadyToSign] = useState<boolean>(false);
 
   // For Custom signature / initial field appearance
   const mySignatureIdsRef = useRef([]);
@@ -217,10 +217,10 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   const isTextAnnotationMovableRef = useRef(isTextAnnotationMovable);
   isTextAnnotationMovableRef.current = isTextAnnotationMovable;
 
-  const onChangeReadyToSign = async (value: boolean) => {
+  const onChangeReadyToSign = async (value: boolean, user:User) => {
     if (instance) {
-      if (currUser.role == "Editor") {
-        setReadyToSign(value);
+      setReadyToSign(value);
+      if (user.role == "Editor") {
         if (value) {
           instance.setViewState((viewState) =>
             viewState.set("interactionMode", PSPDFKit.InteractionMode.PAN)
@@ -331,13 +331,13 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           viewState.set("showToolbar", true)
         );
         setIsVisible(true);
-        onChangeReadyToSign(false);
+        onChangeReadyToSign(false,user);
       } else {
         instance.setViewState((viewState) =>
           viewState.set("showToolbar", false)
         );
         setIsVisible(false);
-        onChangeReadyToSign(true);
+        onChangeReadyToSign(true,user);
       }
     }
   };
@@ -515,7 +515,13 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             mySignatureIdsRef.current = updatedAnnotationIds;
           }
         );
-
+        inst.setViewState((viewState) =>
+          viewState.set(
+            "interactionMode",
+            PSPDFKit.InteractionMode.FORM_CREATOR
+          )
+        );
+        setIsTextAnnotationMovable(true);
         // const scrollElement =
         //   inst.contentDocument.querySelector(".PSPDFKit-Scroll");
 
@@ -642,12 +648,13 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                 >
                   Select the signee to assign fields to.
                 </div>
-                <Checkbox
+                {/* Uncomment this to add ready to sign checkbox */}
+                {/* <Checkbox
                   label="Ready to sign"
                   isSelected={readyToSign}
-                  onChange={(e) => onChangeReadyToSign(e)}
+                  onChange={(e) => onChangeReadyToSign(e,currUser)}
                   style={{ margin: "0px 0px 25px 0px" }}
-                />
+                /> */}
                 <div>
                   <div>
                     {users?.map((user) => {
