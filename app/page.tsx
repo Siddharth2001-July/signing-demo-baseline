@@ -3,9 +3,11 @@ import PSPDFKit from "pspdfkit";
 import { User } from "../utils/types";
 import { SignDemo } from "./signingDemo";
 import { useEffect, useState } from "react";
-import { I18nProvider, ThemeProvider } from "@baseline-ui/core";
+import { I18nProvider, ThemeProvider, Drawer } from "@baseline-ui/core";
 import { ChatDialog } from "@baseline-ui/recipes";
-import { link } from "fs";
+//@ts-ignore
+import { AIMessage, askAI } from "../utils/chatgpt.ts";
+import { downArrowSVG, upArrowSVG } from "@/utils/helpers";
 
 const App: React.FC = () => {
   const allUsers: User[] = [
@@ -47,17 +49,19 @@ const App: React.FC = () => {
   ];
   const [currUser, setCurrUser] = useState(allUsers[0]);
 
+  const aiName = "Ask AI";
   const initMessages = [
     {
       type: "PLAIN",
-      text: "Ask me anything.",
-      sender: "Assistant",
+      text: "Hey there. Ask me anything about this signing demo.",
+      sender: aiName,
       canCopy: true,
       isComplete: true,
-      id: "1"
+      id: "1",
     },
   ];
   const [messages, setMessages] = useState([...initMessages]);
+  const [aiMessages, setAiMessages] = useState<AIMessage[]>([]);
   useEffect(() => {
     setTimeout(() => {
       //console.log("Setting current user to Signer");
@@ -65,42 +69,84 @@ const App: React.FC = () => {
     }, 5 * 1000);
   }, []);
 
+  useEffect(() => {
+    const ele = document.querySelector(`[aria-label= "Close"]`);
+    if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>Close</span>" : "<span style='color:blue;'>Open</span>";
+  })
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
     <ThemeProvider theme={"system"}>
       <I18nProvider locale="en-US">
         <SignDemo allUsers={allUsers} user={currUser} />
-        <ChatDialog
+        <Drawer
+          title="Chat with AI"
           style={{
             position: "absolute",
             bottom: 5,
             right: 5,
             border: "0.5px solid grey",
-            borderRadius : "10px",
-            height: "40vh",
+            borderRadius: "10px",
+            height: isChatOpen ? "40vh" : "7vh",
             width: "300px",
+            padding: "10px",
+            boxShadow: "1px 1px 12px -8px black inset",
           }}
-          //@ts-ignore
-          messages={messages}
-          onInputChanged={function Da(inp) {
-            console.log("Input Changed : ",inp);
+          onCloseRequest={() => {
+            //alert("Closing Chat");
+            setIsChatOpen(!isChatOpen);
           }}
-          onMessageSubmit={function Da(inp) {
-            console.log("Message Submitted : ",inp);
-            const newMessage = {
-              type: "PLAIN",
-              text: inp,
-              sender: currUser.name,
-              isComplete: true,
-              canCopy: true,
-              id: Math.random().toString(),
-            };
-            
-            setMessages([...messages, newMessage]);
-          }}
-          onStateChange={function Da(){}}
-          variant="full-width"
-        />
+        >
+          {isChatOpen && (
+            <ChatDialog
+              style={{ height: "100%", width: "100%", overflow: "auto" }}
+              //@ts-ignore
+              messages={messages}
+              onInputChanged={async function Da(inp) {
+                //console.log("Input Changed : ",inp);
+              }}
+              onMessageSubmit={async function Da(inp) {
+                console.log("Message Submitted : ", inp);
+
+                const newMessage = {
+                  type: "PLAIN",
+                  text: inp,
+                  sender: "You",
+                  isComplete: true,
+                  canCopy: true,
+                  id: Math.random().toString(),
+                };
+
+                setMessages([...messages, newMessage]);
+                const newAIMessage: AIMessage = {
+                  role: "user",
+                  content: inp,
+                };
+                await askAI([...aiMessages, newAIMessage]).then((res) => {
+                  if (res) {
+                    setAiMessages([
+                      ...aiMessages,
+                      { role: "user", content: inp },
+                      res["choices"][0]["message"],
+                    ]);
+                    setMessages([
+                      ...messages,
+                      newMessage,
+                      {
+                        type: "PLAIN",
+                        text: res["choices"][0]["message"]["content"],
+                        sender: aiName,
+                        isComplete: true,
+                        canCopy: true,
+                        id: Math.random().toString(),
+                      },
+                    ]);
+                  }
+                });
+              }}
+            />
+          )}
+        </Drawer>
       </I18nProvider>
     </ThemeProvider>
   );
