@@ -1,5 +1,5 @@
 "use client";
-import PSPDFKit, { Color, Instance, Rect, ToolbarItem } from "pspdfkit";
+import { Color, Instance, Rect, ToolbarItem } from "pspdfkit";
 import { useEffect, useRef, useState } from "react";
 import { AnnotationTypeEnum, User } from "../utils/types";
 import iconSignature from "@/public/pen.png";
@@ -26,6 +26,7 @@ import {
   personSVG,
   dateSVG,
 } from "../utils/helpers";
+import dynamic from "next/dynamic";
 
 
 /**
@@ -35,7 +36,7 @@ import {
  * @param user - The currently logged-in user.
  * @returns The rendered SignDemo component.
  */
-export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
+const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   allUsers,
   user,
 }) => {
@@ -84,7 +85,8 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   const [sessionSignatures, setSessionSignatures] = useState<any>([]);
   const [sessionInitials, setSessionInitials] = useState<any>([]);
 
-  function onDragStart(event: React.DragEvent<HTMLDivElement>, type: string) {
+  async function onDragStart(event: React.DragEvent<HTMLDivElement>, type: string) {
+    const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     const instantId = PSPDFKit.generateInstantId();
     let data =
       currSignee.name + // value from select, name of signer
@@ -113,6 +115,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   };
 
   const handleDrop = async (e: any, inst: Instance) => {
+    const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     e.preventDefault();
     e.stopPropagation();
     const dataArray = e.dataTransfer.getData("text").split("%");
@@ -220,6 +223,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   isTextAnnotationMovableRef.current = isTextAnnotationMovable;
 
   const onChangeReadyToSign = async (value: boolean, user:User) => {
+    const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     if (instance) {
       setReadyToSign(value);
       if (user.role == "Editor") {
@@ -247,6 +251,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   };
 
   const addSignee = () => {
+    if(typeof window === 'undefined') return;
     const name = window.prompt("Enter signee's name:");
     const email = window.prompt("Enter signee's email:");
 
@@ -275,7 +280,8 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   };
 
   // Function to get random color for the signee
-  const randomColor = () => {
+  const randomColor = async () => {
+    const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     const colors: Color[] = [
       PSPDFKit.Color.LIGHT_GREY,
       PSPDFKit.Color.LIGHT_GREEN,
@@ -295,6 +301,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   // Function to handle user change
   const userChange = async (user: User) => {
+    const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     setCurrUser(user);
     if (instance) {
       const formFields = await instance.getFormFields();
@@ -349,137 +356,155 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   // Load PSPDFKit
   useEffect(() => {
-    const container = containerRef.current;  
-    if (container) {
-      if (PSPDFKit) {
-        PSPDFKit.unload(container);
-      }
-      const {
-        UI: { createBlock, Recipes, Interfaces, Core },
-      } = PSPDFKit;
-      PSPDFKit.load({
-        licenseKey: process.env.NEXT_PUBLIC_LICENSE_KEY as string,
-        // @ts-ignore
-        ui: {
-          [Interfaces.CreateSignature]: ({ props }: any) => {
-            return {
-              content: createBlock(
-                Recipes.CreateSignature,
-                props,
-                ({ ui }: any) => {
-                  if (isCreateInitial) {
-                    ui.getBlockById("title").children = "Create Initial";
-                    ui.getBlockById("save-signature-checkbox")._props.label =
-                      "Save Initial";
-
-                    const textInput = ui.getBlockById("signature-text-input");
-                    textInput._props.placeholder = "Initial";
-                    textInput._props.label = "Intial here";
-                    textInput._props.clearLabel = "Clear initial";
-
-                    const freehand = ui.getBlockById("freehand-canvas");
-                    freehand._props.placeholder = "Intial here";
-                    freehand._props.clearLabel = "Clear initial";
-
-                    const fontselect = ui.getBlockById("font-selector");
-                    if (fontselect._props.items[0].label == "Signature") {
-                      fontselect._props.items = fontselect._props.items.map(
-                        (item: any) => {
-                          return { id: item.id, label: "Initial" };
-                        }
-                      );
+    (async function (){
+      let PSPDFKit = await import("pspdfkit").then((module) => module.default);
+      if(typeof window === 'undefined') return;
+      const container = containerRef.current;  
+      if (container) {
+        if (PSPDFKit) {
+          PSPDFKit.unload(container);
+        }
+        const {
+          UI: { createBlock, Recipes, Interfaces, Core },
+        } = PSPDFKit;
+        PSPDFKit.load({
+          licenseKey: process.env.NEXT_PUBLIC_LICENSE_KEY as string,
+          // @ts-ignore
+          ui: {
+            [Interfaces.CreateSignature]: ({ props }: any) => {
+              return {
+                content: createBlock(
+                  Recipes.CreateSignature,
+                  props,
+                  ({ ui }: any) => {
+                    if (isCreateInitial) {
+                      ui.getBlockById("title").children = "Create Initial";
+                      ui.getBlockById("save-signature-checkbox")._props.label =
+                        "Save Initial";
+  
+                      const textInput = ui.getBlockById("signature-text-input");
+                      textInput._props.placeholder = "Initial";
+                      textInput._props.label = "Intial here";
+                      textInput._props.clearLabel = "Clear initial";
+  
+                      const freehand = ui.getBlockById("freehand-canvas");
+                      freehand._props.placeholder = "Intial here";
+                      freehand._props.clearLabel = "Clear initial";
+  
+                      const fontselect = ui.getBlockById("font-selector");
+                      if (fontselect._props.items[0].label == "Signature") {
+                        fontselect._props.items = fontselect._props.items.map(
+                          (item: any) => {
+                            return { id: item.id, label: "Initial" };
+                          }
+                        );
+                      }
                     }
+                    return ui.createComponent();
                   }
-                  return ui.createComponent();
-                }
-              ).createComponent(),
-            };
+                ).createComponent(),
+              };
+            },
           },
-        },
-        container,
-        document: "/document.pdf",
-        baseUrl: `${window.location.protocol}//${window.location.host}/`,
-        toolbarItems: TOOLBAR_ITEMS as ToolbarItem[],
-        disableTextSelection: true,
-        customRenderers: {
-          Annotation: ({ annotation }: any) =>
-            getAnnotationRenderers({
-              annotation,
-            }),
-        },
-        styleSheets: [`/viewer.css`],
-      }).then(async function (inst: Instance) {
-        setInstance(inst);
-
-        // **** Setting Page Index ****
-
-        inst.addEventListener(
-          "viewState.currentPageIndex.change",
-          (page: any) => {
-            setOnPageIndex(page);
-          }
-        );
-
-        // **** Handle Drop event ****
-
-        //@ts-ignore
-        const cont = inst.contentDocument.host;
-        cont.ondrop = async function (e: any) {
-          await handleDrop(e, inst);
-        };
-
-        // **** Handling Add Signature / Initial UI ****
-
-        // Track which signature form field was clicked on
-        // and wether it was an initial field or not.
-        inst.addEventListener("annotations.press", (event) => {
-          let lastFormFieldClicked = event.annotation;
-
-          let annotationsToLoad;
-          if (
-            lastFormFieldClicked.customData &&
-            lastFormFieldClicked.customData.isInitial === true
-          ) {
-            annotationsToLoad = sessionInitials;
-
-            isCreateInitial = true;
-          } else {
-            annotationsToLoad = sessionSignatures;
-
-            isCreateInitial = false;
-          }
-          inst.setStoredSignatures(PSPDFKit.Immutable.List(annotationsToLoad));
-
-          if (
-            !isTextAnnotationMovableRef.current &&
-            event.annotation instanceof PSPDFKit.Annotations.TextAnnotation
-          ) {
-            //@ts-ignore
-            event.preventDefault();
-          }
-        });
-        let formDesignMode = !1;
-
-        inst.setToolbarItems((items) => [...items, { type: "form-creator" }]);
-        inst.addEventListener("viewState.change", (viewState) => {
-          formDesignMode = viewState.formDesignMode === true;
-        });
-
-        inst.addEventListener("storedSignatures.create", async (annotation) => {
-          // Logic for showing signatures and intials in the UI
-          if (isCreateInitial) {
-            setSessionInitials([...sessionInitials, annotation]);
-          } else {
-            setSessionSignatures([...sessionSignatures, annotation]);
-          }
-        });
-
-        // **** Handling Signature / Initial fields appearance after signature ****
-
-        inst.addEventListener(
-          "annotations.load",
-          async function (loadedAnnotations: any) {
-            for await (const annotation of loadedAnnotations) {
+          container,
+          document: "/document.pdf",
+          baseUrl: `${window.location.protocol}//${window.location.host}/`,
+          toolbarItems: TOOLBAR_ITEMS as ToolbarItem[],
+          disableTextSelection: true,
+          customRenderers: {
+            Annotation: ({ annotation }: any) =>
+              getAnnotationRenderers({
+                annotation,
+              }),
+          },
+          styleSheets: [`/viewer.css`],
+        }).then(async function (inst: Instance) {
+          setInstance(inst);
+  
+          // **** Setting Page Index ****
+  
+          inst.addEventListener(
+            "viewState.currentPageIndex.change",
+            (page: any) => {
+              setOnPageIndex(page);
+            }
+          );
+  
+          // **** Handle Drop event ****
+  
+          //@ts-ignore
+          const cont = inst.contentDocument.host;
+          cont.ondrop = async function (e: any) {
+            await handleDrop(e, inst);
+          };
+  
+          // **** Handling Add Signature / Initial UI ****
+  
+          // Track which signature form field was clicked on
+          // and wether it was an initial field or not.
+          inst.addEventListener("annotations.press", (event) => {
+            let lastFormFieldClicked = event.annotation;
+  
+            let annotationsToLoad;
+            if (
+              lastFormFieldClicked.customData &&
+              lastFormFieldClicked.customData.isInitial === true
+            ) {
+              annotationsToLoad = sessionInitials;
+  
+              isCreateInitial = true;
+            } else {
+              annotationsToLoad = sessionSignatures;
+  
+              isCreateInitial = false;
+            }
+            inst.setStoredSignatures(PSPDFKit.Immutable.List(annotationsToLoad));
+  
+            if (
+              !isTextAnnotationMovableRef.current &&
+              event.annotation instanceof PSPDFKit.Annotations.TextAnnotation
+            ) {
+              //@ts-ignore
+              event.preventDefault();
+            }
+          });
+          let formDesignMode = !1;
+  
+          inst.setToolbarItems((items) => [...items, { type: "form-creator" }]);
+          inst.addEventListener("viewState.change", (viewState) => {
+            formDesignMode = viewState.formDesignMode === true;
+          });
+  
+          inst.addEventListener("storedSignatures.create", async (annotation) => {
+            // Logic for showing signatures and intials in the UI
+            if (isCreateInitial) {
+              setSessionInitials([...sessionInitials, annotation]);
+            } else {
+              setSessionSignatures([...sessionSignatures, annotation]);
+            }
+          });
+  
+          // **** Handling Signature / Initial fields appearance after signature ****
+  
+          inst.addEventListener(
+            "annotations.load",
+            async function (loadedAnnotations: any) {
+              for await (const annotation of loadedAnnotations) {
+                await handleAnnotatitonCreation(
+                  inst,
+                  annotation,
+                  mySignatureIdsRef,
+                  setSignatureAnnotationIds,
+                  currUser.email
+                );
+              }
+            }
+          );
+  
+          inst.addEventListener(
+            "annotations.create",
+            async function (createdAnnotations: any) {
+              const annotation = createdAnnotations.get(0);
               await handleAnnotatitonCreation(
                 inst,
                 annotation,
@@ -488,61 +513,48 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                 currUser.email
               );
             }
-          }
-        );
-
-        inst.addEventListener(
-          "annotations.create",
-          async function (createdAnnotations: any) {
-            const annotation = createdAnnotations.get(0);
-            await handleAnnotatitonCreation(
-              inst,
-              annotation,
-              mySignatureIdsRef,
-              setSignatureAnnotationIds,
-              currUser.email
-            );
-          }
-        );
-
-        inst.addEventListener(
-          "annotations.delete",
-          async (deletedAnnotations: any) => {
-            const annotation = deletedAnnotations.get(0);
-            await handleAnnotatitonDelete(inst, annotation, currUser?.email);
-            const updatedAnnotationIds = mySignatureIdsRef.current.filter(
-              (id) => id !== annotation.id
-            );
-            setSignatureAnnotationIds(updatedAnnotationIds);
-            mySignatureIdsRef.current = updatedAnnotationIds;
-          }
-        );
-        inst.setViewState((viewState) =>
-          viewState.set(
-            "interactionMode",
-            PSPDFKit.InteractionMode.FORM_CREATOR
-          )
-        );
-        setIsTextAnnotationMovable(true);
-        // const scrollElement =
-        //   inst.contentDocument.querySelector(".PSPDFKit-Scroll");
-
-        // if (scrollElement === null) console.log("Scroll element not found");
-
-        // //@ts-ignore
-        // scrollElement.addEventListener("scroll", updateSignHereWidget(inst));
-        // // Update the "Sign Here" widget when someone signs
-        // inst.addEventListener("annotations.change", () => {
-        //   updateSignHereWidget(inst);
-        // });
-        // // Update widget with delay to make it visually pop
-        // window.setTimeout(updateSignHereWidget, 1e3);
-
-        // inst.exportInstantJSON().then((data) => {
-        //   localStorage.setItem("document", JSON.stringify(data));
-        // });
-      });
-    }
+          );
+  
+          inst.addEventListener(
+            "annotations.delete",
+            async (deletedAnnotations: any) => {
+              const annotation = deletedAnnotations.get(0);
+              await handleAnnotatitonDelete(inst, annotation, currUser?.email);
+              const updatedAnnotationIds = mySignatureIdsRef.current.filter(
+                (id) => id !== annotation.id
+              );
+              setSignatureAnnotationIds(updatedAnnotationIds);
+              mySignatureIdsRef.current = updatedAnnotationIds;
+            }
+          );
+          inst.setViewState((viewState) =>
+            viewState.set(
+              "interactionMode",
+              PSPDFKit.InteractionMode.FORM_CREATOR
+            )
+          );
+          setIsTextAnnotationMovable(true);
+          // const scrollElement =
+          //   inst.contentDocument.querySelector(".PSPDFKit-Scroll");
+  
+          // if (scrollElement === null) console.log("Scroll element not found");
+  
+          // //@ts-ignore
+          // scrollElement.addEventListener("scroll", updateSignHereWidget(inst));
+          // // Update the "Sign Here" widget when someone signs
+          // inst.addEventListener("annotations.change", () => {
+          //   updateSignHereWidget(inst);
+          // });
+          // // Update widget with delay to make it visually pop
+          // window.setTimeout(updateSignHereWidget, 1e3);
+  
+          // inst.exportInstantJSON().then((data) => {
+          //   localStorage.setItem("document", JSON.stringify(data));
+          // });
+        });
+      }
+    })()
+    
   }, []);
 
   const signeeChanged = (signee: User) => {
@@ -781,7 +793,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   );
 };
 
-export default SignDemo;
+export default dynamic(()=>Promise.resolve(SignDemo),{ssr:false,});
 
 // Red circle SVG icon as a React component
 const RedCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ color }) => {
@@ -841,7 +853,7 @@ const DraggableAnnotation = ({
   return (
     <div
       draggable={true}
-      onDragStart={(e) => onDragStart(e, type)}
+      onDragStart={async(e) =>await onDragStart(e, type)}
       onDragEnd={(e) => onDragEnd(e, type)}
       style={{
         // display: "flex",

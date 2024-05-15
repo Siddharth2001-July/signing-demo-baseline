@@ -1,4 +1,4 @@
-import { Color } from "pspdfkit";
+//import { Color } from "pspdfkit";
 
 export enum AnnotationTypeEnum {
   NAME = "name",
@@ -11,7 +11,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  color: Color;
+  color: any;
   role: string;
 }
 

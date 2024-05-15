@@ -1,13 +1,15 @@
 "use client";
-import PSPDFKit from "pspdfkit";
+import {Color} from "pspdfkit";
 import { User } from "../utils/types";
-import { SignDemo } from "./signingDemo";
 import { useEffect, useState } from "react";
 import { I18nProvider, ThemeProvider, Drawer } from "@baseline-ui/core";
 import { ChatDialog } from "@baseline-ui/recipes";
 //@ts-ignore
 import { AIMessage, askAI } from "../utils/chatgpt.ts";
 import { downArrowSVG, upArrowSVG } from "@/utils/helpers";
+import dynamic from "next/dynamic";
+const DynamicSignComp = dynamic(()=>import("./signingDemo"),{ssr:false});
+import SignDemo from "./signingDemo";
 
 const App: React.FC = () => {
   const allUsers: User[] = [
@@ -15,14 +17,14 @@ const App: React.FC = () => {
       id: 1,
       name: "Admin",
       email: "admin@email.com",
-      color: PSPDFKit.Color.LIGHT_BLUE,
+      color: Color.LIGHT_BLUE,
       role: "Editor",
     },
     {
       id: 2,
       name: "Signer 1",
       email: "signer1@email.com",
-      color: PSPDFKit.Color.LIGHT_YELLOW,
+      color: Color.LIGHT_YELLOW,
       role: "Signer",
     }
   ];
@@ -58,7 +60,7 @@ const App: React.FC = () => {
   return (
     <ThemeProvider theme={"system"}>
       <I18nProvider locale="en-US">
-        <SignDemo allUsers={allUsers} user={currUser} />
+        <DynamicSignComp allUsers={allUsers} user={currUser} />
         <Drawer
           title="Ask AI (Beta)"
           style={{
@@ -131,4 +133,4 @@ const App: React.FC = () => {
     </ThemeProvider>
   );
 };
-export default App;
+export default dynamic(()=>Promise.resolve(App),{ssr:false});
