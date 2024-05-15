@@ -86,6 +86,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   const [sessionInitials, setSessionInitials] = useState<any>([]);
 
   async function onDragStart(event: React.DragEvent<HTMLDivElement>, type: string) {
+    if(typeof window === 'undefined') return;
     const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     const instantId = PSPDFKit.generateInstantId();
     let data =
@@ -115,6 +116,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   };
 
   const handleDrop = async (e: any, inst: Instance) => {
+    if(typeof window === 'undefined') return;
     const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     e.preventDefault();
     e.stopPropagation();
@@ -223,6 +225,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   isTextAnnotationMovableRef.current = isTextAnnotationMovable;
 
   const onChangeReadyToSign = async (value: boolean, user:User) => {
+    if(typeof window === 'undefined') return;
     const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     if (instance) {
       setReadyToSign(value);
@@ -281,6 +284,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   // Function to get random color for the signee
   const randomColor = async () => {
+    if(typeof window === 'undefined') return;
     const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     const colors: Color[] = [
       PSPDFKit.Color.LIGHT_GREY,
@@ -301,6 +305,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   // Function to handle user change
   const userChange = async (user: User) => {
+    if(typeof window === 'undefined') return;
     const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     setCurrUser(user);
     if (instance) {
@@ -357,8 +362,8 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   // Load PSPDFKit
   useEffect(() => {
     (async function (){
-      let PSPDFKit = await import("pspdfkit").then((module) => module.default);
       if(typeof window === 'undefined') return;
+      const PSPDFKit = await import("pspdfkit").then((module) => module.default);
       const container = containerRef.current;  
       if (container) {
         if (PSPDFKit) {

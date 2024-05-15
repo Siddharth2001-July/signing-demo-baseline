@@ -1,5 +1,5 @@
 import { AnnotationTypeEnum, User } from "../utils/types";
-import { Instance } from "pspdfkit";
+//import { Instance } from "pspdfkit";
 
 const renderConfigurations: any = {};
 
@@ -72,7 +72,7 @@ export const getAnnotationRenderers = ({ annotation }: any) => {
 };
 
 export const handleAnnotatitonCreation = async (
-  instance: Instance,
+  instance: any,
   annotation: any,
   mySignatureIdsRef: any,
   setSignatureAnnotationIds: any,
@@ -145,7 +145,7 @@ export const handleAnnotatitonCreation = async (
 };
 
 export const handleAnnotatitonDelete = async (
-  instance: Instance,
+  instance: any,
   annotation: any,
   myEmail: string
 ) => {
