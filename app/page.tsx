@@ -20,40 +20,19 @@ const App: React.FC = () => {
     },
     {
       id: 2,
-      name: "Sid",
-      email: "sid@email.com",
+      name: "Signer 1",
+      email: "signer1@email.com",
       color: PSPDFKit.Color.LIGHT_YELLOW,
       role: "Signer",
-    },
-    {
-      id: 3,
-      name: "Pav",
-      email: "pav@email.com",
-      color: PSPDFKit.Color.LIGHT_GREEN,
-      role: "Signer",
-    },
-    {
-      id: 4,
-      name: "Jon",
-      email: "jon@email.com",
-      color: PSPDFKit.Color.LIGHT_GREY,
-      role: "Signer",
-    },
-    {
-      id: 5,
-      name: "Nar",
-      email: "nar@email.com",
-      color: PSPDFKit.Color.fromHex("#0ffcf1"),
-      role: "Signer",
-    },
+    }
   ];
   const [currUser, setCurrUser] = useState(allUsers[0]);
 
-  const aiName = "Ask AI";
+  const aiName = "AI";
   const initMessages = [
     {
       type: "PLAIN",
-      text: "Hey there. Ask me anything about this signing demo.",
+      text: "Welcome to the PSPDFKit Sign App! Ask me anything about the code, like “How do I set the signees?",
       sender: aiName,
       canCopy: true,
       isComplete: true,
@@ -72,7 +51,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const ele = document.querySelector(`[aria-label= "Close"]`);
     if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>Close</span>" : "<span style='color:blue;'>Open</span>";
-    if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>v</span>" : "<span style='color:blue;'>^</span>";
+    if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>X</span>" : "<span style='color:blue;'>^</span>";
   })
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -81,14 +60,14 @@ const App: React.FC = () => {
       <I18nProvider locale="en-US">
         <SignDemo allUsers={allUsers} user={currUser} />
         <Drawer
-          title="Chat with AI"
+          title="Ask AI (Beta)"
           style={{
             position: "absolute",
             bottom: 5,
             right: 5,
             border: "0.5px solid grey",
             borderRadius: "10px",
-            height: isChatOpen ? "40vh" : "7vh",
+            height: isChatOpen ? "70vh" : "7vh",
             width: "300px",
             padding: "10px",
             boxShadow: "1px 1px 12px -8px black inset",

@@ -26,6 +26,8 @@ import {
   personSVG,
   dateSVG,
 } from "../utils/helpers";
+
+
 /**
  * SignDemo component.
  *
@@ -347,7 +349,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   // Load PSPDFKit
   useEffect(() => {
-    const container = containerRef.current;
+    const container = containerRef.current;  
     if (container) {
       if (PSPDFKit) {
         PSPDFKit.unload(container);
@@ -600,7 +602,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                 marginBottom: "10px",
               }}
             >
-              Choose 'Admin' to edit and prepare the document for signing, or
+              Choose &apos;Admin&apos; to edit and prepare the document for signing, or
               select a user to sign the document as that user.
             </div>
             <Select
@@ -636,7 +638,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                     textTransform: "uppercase",
                   }}
                 >
-                  Signees
+                  Signers
                 </h3>
                 <div
                   style={{
@@ -647,7 +649,7 @@ export const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                     marginBottom: "10px",
                   }}
                 >
-                  Select the signee to assign fields to.
+                  Select the signer to assign fields to.
                 </div>
                 {/* Uncomment this to add ready to sign checkbox */}
                 {/* <Checkbox
