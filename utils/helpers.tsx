@@ -1,5 +1,5 @@
 import { AnnotationTypeEnum, User } from "../utils/types";
-import PSPDFKit, { Instance } from "pspdfkit";
+import { Instance } from "pspdfkit";
 
 const renderConfigurations: any = {};
 
