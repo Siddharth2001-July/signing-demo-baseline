@@ -1,8 +1,4 @@
 import { AnnotationTypeEnum, User } from "../utils/types";
-<<<<<<< Updated upstream
-//import { Instance } from "pspdfkit";
-=======
->>>>>>> Stashed changes
 
 const renderConfigurations: any = {};
 
