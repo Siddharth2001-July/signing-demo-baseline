@@ -1,8 +1,5 @@
 "use client";
-<<<<<<< Updated upstream
 import {Color} from "pspdfkit";
-=======
->>>>>>> Stashed changes
 import { User } from "../utils/types";
 import { useEffect, useState } from "react";
 // import { I18nProvider, ThemeProvider, Drawer } from "@baseline-ui/core";
@@ -14,11 +11,8 @@ import { ChatDialog } from "@baseline-ui/recipes";
 import { AIMessage, askAI } from "../utils/chatgpt.ts";
 import { downArrowSVG, upArrowSVG } from "@/utils/helpers";
 import dynamic from "next/dynamic";
-<<<<<<< Updated upstream
 const DynamicSignComp = dynamic(()=>import("./signingDemo"),{ssr:false});
 import SignDemo from "./signingDemo";
-=======
->>>>>>> Stashed changes
 
 const App: React.FC = () => {
   const allUsers: User[] = [
@@ -26,22 +20,14 @@ const App: React.FC = () => {
       id: 1,
       name: "Admin",
       email: "admin@email.com",
-<<<<<<< Updated upstream
-      color: Color.LIGHT_BLUE,
-=======
       color: "PSPDFKit.Color.LIGHT_BLUE",
->>>>>>> Stashed changes
       role: "Editor",
     },
     {
       id: 2,
       name: "Signer 1",
       email: "signer1@email.com",
-<<<<<<< Updated upstream
-      color: Color.LIGHT_YELLOW,
-=======
       color: "PSPDFKit.Color.LIGHT_YELLOW",
->>>>>>> Stashed changes
       role: "Signer",
     }
   ];
