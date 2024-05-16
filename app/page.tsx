@@ -1,15 +1,24 @@
 "use client";
+<<<<<<< Updated upstream
 import {Color} from "pspdfkit";
+=======
+>>>>>>> Stashed changes
 import { User } from "../utils/types";
 import { useEffect, useState } from "react";
-import { I18nProvider, ThemeProvider, Drawer } from "@baseline-ui/core";
+// import { I18nProvider, ThemeProvider, Drawer } from "@baseline-ui/core";
+const I18nProvider = dynamic(() => import("@baseline-ui/core").then((mod) => mod.I18nProvider), { ssr: false });
+const ThemeProvider = dynamic(() => import("@baseline-ui/core").then((mod) => mod.ThemeProvider), { ssr: false });
+const Drawer = dynamic(() => import("@baseline-ui/core").then((mod) => mod.Drawer), { ssr: false })
 import { ChatDialog } from "@baseline-ui/recipes";
 //@ts-ignore
 import { AIMessage, askAI } from "../utils/chatgpt.ts";
 import { downArrowSVG, upArrowSVG } from "@/utils/helpers";
 import dynamic from "next/dynamic";
+<<<<<<< Updated upstream
 const DynamicSignComp = dynamic(()=>import("./signingDemo"),{ssr:false});
 import SignDemo from "./signingDemo";
+=======
+>>>>>>> Stashed changes
 
 const App: React.FC = () => {
   const allUsers: User[] = [
@@ -17,14 +26,22 @@ const App: React.FC = () => {
       id: 1,
       name: "Admin",
       email: "admin@email.com",
+<<<<<<< Updated upstream
       color: Color.LIGHT_BLUE,
+=======
+      color: "PSPDFKit.Color.LIGHT_BLUE",
+>>>>>>> Stashed changes
       role: "Editor",
     },
     {
       id: 2,
       name: "Signer 1",
       email: "signer1@email.com",
+<<<<<<< Updated upstream
       color: Color.LIGHT_YELLOW,
+=======
+      color: "PSPDFKit.Color.LIGHT_YELLOW",
+>>>>>>> Stashed changes
       role: "Signer",
     }
   ];
@@ -44,6 +61,13 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState([...initMessages]);
   const [aiMessages, setAiMessages] = useState<AIMessage[]>([]);
   useEffect(() => {
+    var PSPDFKit:any
+    (async function(){
+      PSPDFKit = await import("pspdfkit");
+      allUsers.forEach((user:any) => {
+        user.color = PSPDFKit.Color.LIGHT_BLUE;
+      })
+    })()
     setTimeout(() => {
       //console.log("Setting current user to Signer");
       //setCurrUser(allUsers[1]);

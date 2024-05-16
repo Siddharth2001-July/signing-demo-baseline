@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 //import { Color } from "pspdfkit";
+=======
+
+>>>>>>> Stashed changes
 
 export enum AnnotationTypeEnum {
   NAME = "name",
