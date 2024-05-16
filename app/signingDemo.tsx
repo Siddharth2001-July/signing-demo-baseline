@@ -1,5 +1,8 @@
 "use client";
+<<<<<<< Updated upstream
 import { Color, Instance, Rect, ToolbarItem } from "pspdfkit";
+=======
+>>>>>>> Stashed changes
 import { useEffect, useRef, useState } from "react";
 import { AnnotationTypeEnum, User } from "../utils/types";
 import iconSignature from "@/public/pen.png";
@@ -7,13 +10,14 @@ import iconName from "@/public/user.png";
 import iconDate from "@/public/icon-date.svg";
 import ImageComponent from "next/image";
 import iconPlusGray from "@/public/icon-plus-gray.png";
-import {
-  ActionButton,
-  ListOption,
-  Select,
-  Checkbox,
-  Separator,
-} from "@baseline-ui/core";
+const ActionButton = dynamic(() => import("@baseline-ui/core").then((mod) => mod.ActionButton),{ssr: false});
+const Select = dynamic(() => import("@baseline-ui/core").then((mod) => mod.Select),{ssr: false});
+// import {
+//   ActionButton,
+//   Select,
+//   Checkbox,
+//   Separator,
+// } from "@baseline-ui/core";
 
 import {
   handleAnnotatitonCreation,
@@ -40,9 +44,10 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   allUsers,
   user,
 }) => {
+  const [PSPDFKit, setPSPDFKit] = useState<any>(null);
   //export const SignDemo: any = ({ allUsers, user }: { allUsers: User[], user: User }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [instance, setInstance] = useState<Instance | null>(null);
+  const [instance, setInstance] = useState<any>(null);
 
   // State to store the users. Master is the default user for now who can add fields in the doc.
   const [users, setUsers] = useState<User[]>(allUsers);
@@ -63,9 +68,13 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   currUserRef.current = currUser;
 
   useEffect(() => {
+    if(PSPDFKit){
+    allUsers.forEach((user) => {
+      user.color = randomColor(PSPDFKit);
+    })}
     setUsers(allUsers);
     setCurrUser(user);
-    userChange(user);
+    userChange(user,PSPDFKit);
   }, [user]);
 
   // State to store the current page index
@@ -85,10 +94,15 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   const [sessionSignatures, setSessionSignatures] = useState<any>([]);
   const [sessionInitials, setSessionInitials] = useState<any>([]);
 
+<<<<<<< Updated upstream
   async function onDragStart(event: React.DragEvent<HTMLDivElement>, type: string) {
     if(typeof window === 'undefined') return;
     const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     const instantId = PSPDFKit.generateInstantId();
+=======
+  function onDragStart(event: React.DragEvent<HTMLDivElement>, type: string) {
+    const instantId = "PSPDFKit.generateInstantId()";
+>>>>>>> Stashed changes
     let data =
       currSignee.name + // value from select, name of signer
       "%" + // % is an invalid email character so we can use it as a delimiter
@@ -115,13 +129,18 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     e.preventDefault();
   };
 
+<<<<<<< Updated upstream
   const handleDrop = async (e: any, inst: Instance) => {
     if(typeof window === 'undefined') return;
     const PSPDFKit = await import("pspdfkit").then((module) => module.default);
+=======
+  const handleDrop = async (e: any, inst: any, PSPDFKit:any) => {
+>>>>>>> Stashed changes
     e.preventDefault();
     e.stopPropagation();
     const dataArray = e.dataTransfer.getData("text").split("%");
     let [name, email, instantId, annotationType] = dataArray;
+    instantId = PSPDFKit.generateInstantId();
     const signee = currSigneeRef.current;
     const user = currUserRef.current;
     const pageIndex = onPageIndexRef.current;
@@ -138,7 +157,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     const pageRect = inst.transformContentClientToPageSpace(
       clientRect,
       pageIndex
-    ) as Rect;
+    ) as any;
     if (
       annotationType === AnnotationTypeEnum.SIGNATURE ||
       annotationType === AnnotationTypeEnum.INITIAL
@@ -224,19 +243,23 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   const isTextAnnotationMovableRef = useRef(isTextAnnotationMovable);
   isTextAnnotationMovableRef.current = isTextAnnotationMovable;
 
+<<<<<<< Updated upstream
   const onChangeReadyToSign = async (value: boolean, user:User) => {
     if(typeof window === 'undefined') return;
     const PSPDFKit = await import("pspdfkit").then((module) => module.default);
+=======
+  const onChangeReadyToSign = async (value: boolean, user:User, PSPDFKit:any) => {
+>>>>>>> Stashed changes
     if (instance) {
       setReadyToSign(value);
       if (user.role == "Editor") {
         if (value) {
-          instance.setViewState((viewState) =>
+          instance.setViewState((viewState:any) =>
             viewState.set("interactionMode", PSPDFKit.InteractionMode.PAN)
           );
           setIsTextAnnotationMovable(false);
         } else {
-          instance.setViewState((viewState) =>
+          instance.setViewState((viewState:any) =>
             viewState.set(
               "interactionMode",
               PSPDFKit.InteractionMode.FORM_CREATOR
@@ -245,7 +268,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           setIsTextAnnotationMovable(true);
         }
       } else {
-        instance.setViewState((viewState) =>
+        instance.setViewState((viewState:any) =>
           viewState.set("interactionMode", PSPDFKit.InteractionMode.PAN)
         );
         setIsTextAnnotationMovable(false);
@@ -254,7 +277,11 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   };
 
   const addSignee = () => {
+<<<<<<< Updated upstream
     if(typeof window === 'undefined') return;
+=======
+    if(typeof window !== 'undefined'){
+>>>>>>> Stashed changes
     const name = window.prompt("Enter signee's name:");
     const email = window.prompt("Enter signee's email:");
 
@@ -273,20 +300,25 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           id: id,
           name: name,
           email: email,
-          color: randomColor(),
+          color: randomColor(PSPDFKit),
           role: "signee",
         } as User,
       ]);
     } else {
       alert("Please enter both name and email.");
-    }
+    }}
   };
 
   // Function to get random color for the signee
+<<<<<<< Updated upstream
   const randomColor = async () => {
     if(typeof window === 'undefined') return;
     const PSPDFKit = await import("pspdfkit").then((module) => module.default);
     const colors: Color[] = [
+=======
+  const randomColor = (PSPDFKit:any) => {
+    const colors: any = [
+>>>>>>> Stashed changes
       PSPDFKit.Color.LIGHT_GREY,
       PSPDFKit.Color.LIGHT_GREEN,
       PSPDFKit.Color.LIGHT_YELLOW,
@@ -297,16 +329,20 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     ];
     const usedColors = users.map((signee) => signee.color);
     const availableColors = colors.filter(
-      (color) => !usedColors.includes(color as Color)
+      (color:any) => !usedColors.includes(color as any)
     );
     const randomIndex = Math.floor(Math.random() * availableColors.length);
     return availableColors[randomIndex];
   };
 
   // Function to handle user change
+<<<<<<< Updated upstream
   const userChange = async (user: User) => {
     if(typeof window === 'undefined') return;
     const PSPDFKit = await import("pspdfkit").then((module) => module.default);
+=======
+  const userChange = async (user: User, PSPDFKit:any) => {
+>>>>>>> Stashed changes
     setCurrUser(user);
     if (instance) {
       const formFields = await instance.getFormFields();
@@ -341,17 +377,17 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
       await instance.update(readOnlyFormFields);
       // User with role Editor can edit the document
       if (user.role == "Editor") {
-        instance.setViewState((viewState) =>
+        instance.setViewState((viewState:any) =>
           viewState.set("showToolbar", true)
         );
         setIsVisible(true);
-        onChangeReadyToSign(false,user);
+        onChangeReadyToSign(false,user,PSPDFKit);
       } else {
-        instance.setViewState((viewState) =>
+        instance.setViewState((viewState:any) =>
           viewState.set("showToolbar", false)
         );
         setIsVisible(false);
-        onChangeReadyToSign(true,user);
+        onChangeReadyToSign(true,user,PSPDFKit);
       }
     }
   };
@@ -361,10 +397,18 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   // Load PSPDFKit
   useEffect(() => {
+<<<<<<< Updated upstream
     (async function (){
       if(typeof window === 'undefined') return;
       const PSPDFKit = await import("pspdfkit").then((module) => module.default);
       const container = containerRef.current;  
+=======
+    const container = containerRef.current;  
+    let PSPDFKit:any;
+    (async function (){
+      PSPDFKit = await import("pspdfkit");
+      setPSPDFKit(PSPDFKit);
+>>>>>>> Stashed changes
       if (container) {
         if (PSPDFKit) {
           PSPDFKit.unload(container);
@@ -414,7 +458,11 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           container,
           document: "/document.pdf",
           baseUrl: `${window.location.protocol}//${window.location.host}/`,
+<<<<<<< Updated upstream
           toolbarItems: TOOLBAR_ITEMS as ToolbarItem[],
+=======
+          toolbarItems: TOOLBAR_ITEMS,
+>>>>>>> Stashed changes
           disableTextSelection: true,
           customRenderers: {
             Annotation: ({ annotation }: any) =>
@@ -423,7 +471,11 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
               }),
           },
           styleSheets: [`/viewer.css`],
+<<<<<<< Updated upstream
         }).then(async function (inst: Instance) {
+=======
+        }).then(async function (inst: any) {
+>>>>>>> Stashed changes
           setInstance(inst);
   
           // **** Setting Page Index ****
@@ -440,14 +492,22 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           //@ts-ignore
           const cont = inst.contentDocument.host;
           cont.ondrop = async function (e: any) {
+<<<<<<< Updated upstream
             await handleDrop(e, inst);
+=======
+            await handleDrop(e, inst, PSPDFKit);
+>>>>>>> Stashed changes
           };
   
           // **** Handling Add Signature / Initial UI ****
   
           // Track which signature form field was clicked on
           // and wether it was an initial field or not.
+<<<<<<< Updated upstream
           inst.addEventListener("annotations.press", (event) => {
+=======
+          inst.addEventListener("annotations.press", (event:any) => {
+>>>>>>> Stashed changes
             let lastFormFieldClicked = event.annotation;
   
             let annotationsToLoad;
@@ -475,12 +535,21 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           });
           let formDesignMode = !1;
   
+<<<<<<< Updated upstream
           inst.setToolbarItems((items) => [...items, { type: "form-creator" }]);
           inst.addEventListener("viewState.change", (viewState) => {
             formDesignMode = viewState.formDesignMode === true;
           });
   
           inst.addEventListener("storedSignatures.create", async (annotation) => {
+=======
+          inst.setToolbarItems((items:any) => [...items, { type: "form-creator" }]);
+          inst.addEventListener("viewState.change", (viewState:any) => {
+            formDesignMode = viewState.formDesignMode === true;
+          });
+  
+          inst.addEventListener("storedSignatures.create", async (annotation:any) => {
+>>>>>>> Stashed changes
             // Logic for showing signatures and intials in the UI
             if (isCreateInitial) {
               setSessionInitials([...sessionInitials, annotation]);
@@ -532,7 +601,11 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
               mySignatureIdsRef.current = updatedAnnotationIds;
             }
           );
+<<<<<<< Updated upstream
           inst.setViewState((viewState) =>
+=======
+          inst.setViewState((viewState:any) =>
+>>>>>>> Stashed changes
             viewState.set(
               "interactionMode",
               PSPDFKit.InteractionMode.FORM_CREATOR
@@ -559,7 +632,10 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         });
       }
     })()
+<<<<<<< Updated upstream
     
+=======
+>>>>>>> Stashed changes
   }, []);
 
   const signeeChanged = (signee: User) => {
@@ -574,6 +650,29 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     );
     setUsers(remainingUsers);
     currSig ? signeeChanged(currSig) : alert("No Signee left");
+  };
+  const RedCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ color }) => {
+    const jsonString = color
+      ? color.substring(2).replace(/(\w+):/g, '"$1":')
+      : "";
+      try {
+        // Parse the JSON string into an object
+    const colorObject = JSON.parse(jsonString);
+    //console.log("Color: ", colorObject);
+    return (
+      <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+        <circle
+          cx="10"
+          cy="10"
+          r="10"
+          fill={`rgb(${colorObject.r},${colorObject.g},${colorObject.b})`}
+        />
+      </svg>
+    );
+      } catch (error) {
+        
+      }
+    
   };
 
   const [selectedSignee, setSelectedSignee] = useState(currSigneeRef.current);
@@ -627,15 +726,15 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                 return {
                   id: user.id.toString(),
                   label: user.name,
-                  icon: () => <RedCircleIcon color={user.color.toString()} />,
-                } as ListOption;
+                  icon: () => user.role=="Editor" ? null : <RedCircleIcon color={user.color.toString()} />,
+                } as any;
               })}
               className="input-custom-style"
               aria-label="Choose Stroke Style"
               selectedKey={currUser.id.toString()}
               onSelectionChange={
                 ((selected: any) => {
-                  userChange(users.find((user) => user.id == selected) as User);
+                  userChange(users.find((user) => user.id == selected) as User,PSPDFKit);
                 }) as any
               }
             />
@@ -801,24 +900,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 export default dynamic(()=>Promise.resolve(SignDemo),{ssr:false,});
 
 // Red circle SVG icon as a React component
-const RedCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ color }) => {
-  const jsonString = color
-    ? color.substring(2).replace(/(\w+):/g, '"$1":')
-    : "";
-  // Parse the JSON string into an object
-  const colorObject = JSON.parse(jsonString);
-  //console.log("Color: ", colorObject);
-  return (
-    <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-      <circle
-        cx="10"
-        cy="10"
-        r="10"
-        fill={`rgb(${colorObject.r},${colorObject.g},${colorObject.b})`}
-      />
-    </svg>
-  );
-};
+
 
 const DraggableAnnotation = ({
   className,
