@@ -649,7 +649,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                   icon: () => user.role=="Editor" ? null : <RedCircleIcon color={user.color.toString()} />,
                 } as any;
               })}
-              //style={{display: "block"}}
+              className="input-custom-style"
               selectedKey={currUser.id.toString()}
               onSelectionChange={
                 ((selected: any) => {
