@@ -645,12 +645,11 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
               items={users.map((user) => {
                 return {
                   id: user.id.toString(),
-                  label: user.name,
+                  label: user?.name.length > 15 ? user?.name.slice(0, 15) + "..." : user?.name,
                   icon: () => user.role=="Editor" ? null : <RedCircleIcon color={user.color.toString()} />,
                 } as any;
               })}
-              className="input-custom-style"
-              aria-label="Choose Stroke Style"
+              //style={{display: "block"}}
               selectedKey={currUser.id.toString()}
               onSelectionChange={
                 ((selected: any) => {
@@ -709,8 +708,8 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                               signeeChanged(user);
                             }}
                           >
-                            <RedCircleIcon color={user.color.toString()} />
-                            {user?.name}
+                            <RedCircleIcon color={user.color?.toString()} />
+                            {user?.name.length > 10 ? user?.name.slice(0, 10) + "..." : user?.name}
                             <span
                               className="cross"
                               onClick={(e) => {
@@ -876,7 +875,7 @@ const DraggableAnnotation = ({
             borderRadius: "5px",
             marginInlineEnd: "8px",
             padding: "3px 5px",
-            backgroundColor: `rgb(${userColor.r},${userColor.g},${userColor.b})`,
+            backgroundColor: userColor ? `rgb(${userColor.r},${userColor.g},${userColor.b})` : `white`,
           }}
         >
           {icon}

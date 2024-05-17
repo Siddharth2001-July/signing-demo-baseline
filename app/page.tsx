@@ -1,18 +1,16 @@
 "use client";
-import {Color} from "pspdfkit";
 import { User } from "../utils/types";
 import { useEffect, useState } from "react";
-// import { I18nProvider, ThemeProvider, Drawer } from "@baseline-ui/core";
-const I18nProvider = dynamic(() => import("@baseline-ui/core").then((mod) => mod.I18nProvider), { ssr: false });
-const ThemeProvider = dynamic(() => import("@baseline-ui/core").then((mod) => mod.ThemeProvider), { ssr: false });
-const Drawer = dynamic(() => import("@baseline-ui/core").then((mod) => mod.Drawer), { ssr: false })
 import { ChatDialog } from "@baseline-ui/recipes";
 //@ts-ignore
 import { AIMessage, askAI } from "../utils/chatgpt.ts";
-import { downArrowSVG, upArrowSVG } from "@/utils/helpers";
 import dynamic from "next/dynamic";
+
+// Dynamic imports for components that are not needed during SSR
 const DynamicSignComp = dynamic(()=>import("./signingDemo"),{ssr:false});
-import SignDemo from "./signingDemo";
+const I18nProvider = dynamic(() => import("@baseline-ui/core").then((mod) => mod.I18nProvider), { ssr: false });
+const ThemeProvider = dynamic(() => import("@baseline-ui/core").then((mod) => mod.ThemeProvider), { ssr: false });
+const Drawer = dynamic(() => import("@baseline-ui/core").then((mod) => mod.Drawer), { ssr: false })
 
 const App: React.FC = () => {
   const allUsers: User[] = [
@@ -20,14 +18,12 @@ const App: React.FC = () => {
       id: 1,
       name: "Admin",
       email: "admin@email.com",
-      color: "PSPDFKit.Color.LIGHT_BLUE",
       role: "Editor",
     },
     {
       id: 2,
       name: "Signer 1",
       email: "signer1@email.com",
-      color: "PSPDFKit.Color.LIGHT_YELLOW",
       role: "Signer",
     }
   ];
@@ -47,6 +43,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState([...initMessages]);
   const [aiMessages, setAiMessages] = useState<AIMessage[]>([]);
   useEffect(() => {
+    
     var PSPDFKit:any
     (async function(){
       PSPDFKit = await import("pspdfkit");
@@ -57,15 +54,15 @@ const App: React.FC = () => {
     setTimeout(() => {
       //console.log("Setting current user to Signer");
       //setCurrUser(allUsers[1]);
-    }, 5 * 1000);
+    }, 0);
   }, []);
 
+  const [isChatOpen, setIsChatOpen] = useState(false);
   useEffect(() => {
     const ele = document.querySelector(`[aria-label= "Close"]`);
-    if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>Close</span>" : "<span style='color:blue;'>Open</span>";
-    if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>X</span>" : "<span style='color:blue;'>^</span>";
-  })
-  const [isChatOpen, setIsChatOpen] = useState(false);
+    //if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>Close</span>" : "<span style='color:blue;'>Open</span>";
+    if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>&#10005</span>" : "<span style='color:blue;'>^</span>";
+  },[isChatOpen])
 
   return (
     <ThemeProvider theme={"system"}>
