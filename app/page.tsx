@@ -127,7 +127,7 @@ const App: React.FC = () => {
                 borderRadius: isChatOpen ? "10px" : "50%",
                 width: isChatOpen ? "35vh" : "8vh",
                 height: isChatOpen ? "60vh" : "8vh",
-                backgroundColor: "rgb(140 140 141)",
+                backgroundColor: "#4537de ",
               }}
               onClick={() => {
                 setIsChatOpen(!isChatOpen);
@@ -138,7 +138,7 @@ const App: React.FC = () => {
           )}
           {isChatOpen && (
             <ChatDialog
-              style={{ height: "60vh", width: "100%", overflow: "auto" }}
+              style={{ height: "62vh", width: "100%", overflow: "auto" }}
               //@ts-ignore
               messages={messages}
               onInputChanged={async function Da(inp) {
