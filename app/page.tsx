@@ -57,7 +57,7 @@ const App: React.FC = () => {
     (async function () {
       PSPDFKit = await import("pspdfkit");
       allUsers.forEach((user: any) => {
-        user.color = PSPDFKit.Color.LIGHT_BLUE;
+        user.color = PSPDFKit.Color.LIGHT_YELLOW;
       });
     })();
     setTimeout(() => {
@@ -67,14 +67,6 @@ const App: React.FC = () => {
   }, []);
 
   const [isChatOpen, setIsChatOpen] = useState(false);
-  useEffect(() => {
-    const ele = document.querySelector(`[aria-label= "Close"]`);
-    //if (ele) ele.innerHTML =  isChatOpen ? "<span style='color:blue;'>Close</span>" : "<span style='color:blue;'>Open</span>";
-    if (ele)
-      ele.innerHTML = isChatOpen
-        ? "<span style='color:blue;'>&#10005</span>"
-        : "<span style='color:blue;'>^</span>";
-  }, [isChatOpen]);
 
   return (
     <ThemeProvider theme={"system"}>
