@@ -453,6 +453,12 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             await handleDrop(e, inst, PSPDFKit);
           };
 
+          const items = inst.toolbarItems;
+          // Hide the toolbar item with the type "export-pdf" by removing it from the array of items.
+          inst.setToolbarItems(
+            items.filter((item:any) => item.type !== "export-pdf")
+          );
+
           // **** Handling Add Signature / Initial UI ****
 
           // Track which signature form field was clicked on
