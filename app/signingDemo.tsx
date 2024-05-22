@@ -1,11 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { AnnotationTypeEnum, User } from "../utils/types";
-import iconSignature from "@/public/pen.png";
-import iconName from "@/public/user.png";
-import iconDate from "@/public/icon-date.svg";
-import ImageComponent from "next/image";
-import iconPlusGray from "@/public/icon-plus-gray.png";
 const ActionButton = dynamic(
   () => import("@baseline-ui/core").then((mod) => mod.ActionButton),
   { ssr: false }
@@ -14,12 +9,6 @@ const Select = dynamic(
   () => import("@baseline-ui/core").then((mod) => mod.Select),
   { ssr: false }
 );
-// import {
-//   ActionButton,
-//   Select,
-//   Checkbox,
-//   Separator,
-// } from "@baseline-ui/core";
 
 import {
   handleAnnotatitonCreation,

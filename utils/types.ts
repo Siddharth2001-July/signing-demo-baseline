@@ -14,3 +14,7 @@ export interface User {
   role: string;
 }
 
+export interface AIMessage {
+  role: string;
+  content: string;
+}
