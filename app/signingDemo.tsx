@@ -156,7 +156,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           signerColor: signee.color,
           isInitial: annotationType === AnnotationTypeEnum.INITIAL,
         },
-        backgroundColor: signee.color,
+        //backgroundColor: signee.color,
       });
       const formField = new PSPDFKit.FormFields.SignatureFormField({
         annotationIds: PSPDFKit.Immutable.List([widget.id]),
@@ -442,12 +442,6 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             await handleDrop(e, inst, PSPDFKit);
           };
 
-          const items = inst.toolbarItems;
-          // Hide the toolbar item with the type "export-pdf" by removing it from the array of items.
-          inst.setToolbarItems(
-            items.filter((item:any) => item.type !== "export-pdf")
-          );
-
           // **** Handling Add Signature / Initial UI ****
 
           // Track which signature form field was clicked on
@@ -502,7 +496,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             }
           );
 
-          // **** Handling Signature / Initial fields appearance after signature ****
+          // **** Handling Signature / Initial fields appearance ****
 
           inst.addEventListener(
             "annotations.load",
