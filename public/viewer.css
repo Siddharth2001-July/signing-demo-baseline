@@ -28,11 +28,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-inline: 0px;
+  padding-inline: 3px;
 }
 
 .signed .custom-annotation-wrapper {
   visibility: hidden;
+  display: none !important;
 }
 
 .custom-signature {
@@ -43,6 +44,62 @@
 .custom-signature-label {
   color: rgba(0, 0, 0, 0.8);
   font-weight: 800;
-  opacity: 1;
+  opacity: 0.8;
   margin-top: 0px;
+}
+
+/* After Sign box CSS */
+
+.signature-box-demo {
+  position: relative;
+  display: inline-block;
+  background-color: transparent;
+  /* border: 1px solid rgb(180, 184, 228); */
+  border-radius: 10px;
+}
+
+.signature-label-demo {
+  position: absolute;
+  top: -45%;
+  left: 5%;
+  font-size: 8px;
+  background-color: transparent;
+  padding: 0;
+  color: #555
+}
+
+.signature-id-demo {
+  position: absolute;
+  top: 92%;
+  left: 2%;
+  font-size: 8px;
+  background-color: transparent;
+  padding: 0 5px;
+  color: #555;
+}
+
+.signature-box-demo::before {
+  content: "";
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  width: 30px;
+  height: 60px;
+  border: 1px solid rgb(255, 0, 0);
+  border-radius: 20px 0 0 0;
+  border-bottom: none;
+  border-right: none;
+}
+
+.signature-box-demo::after {
+  content: "";
+  position: absolute;
+  bottom: -15px;
+  left: -15px;
+  width: 80px;
+  height: 40px;
+  border: 1px solid rgb(207, 37, 37);
+  border-radius: 0 0 0 20px;
+  border-top: none;
+  border-right: none;
 }
