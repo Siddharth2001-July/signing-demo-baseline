@@ -6,6 +6,7 @@ export const TOOLBAR_ITEMS = [
   { type: "sidebar-thumbnails" },
   { type: "sidebar-document-outline" },
   { type: "sidebar-annotations" },
+  { type : "sidebar-signatures" },
   { type: "pager" },
   { type: "layout-config" },
   { type: "pan" },
