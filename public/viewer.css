@@ -60,8 +60,8 @@
 
 .signature-label-demo {
   position: absolute;
-  top: -45%;
-  left: 5%;
+  top: -54%;
+  left: 25%;
   font-size: 8px;
   background-color: transparent;
   padding: 0;
@@ -85,7 +85,7 @@
   left: -15px;
   width: 30px;
   height: 60px;
-  border: 1px solid rgb(255, 0, 0);
+  border: 1px solid grey;
   border-radius: 20px 0 0 0;
   border-bottom: none;
   border-right: none;
@@ -98,7 +98,7 @@
   left: -15px;
   width: 80px;
   height: 40px;
-  border: 1px solid rgb(207, 37, 37);
+  border: 1px solid grey;
   border-radius: 0 0 0 20px;
   border-top: none;
   border-right: none;
