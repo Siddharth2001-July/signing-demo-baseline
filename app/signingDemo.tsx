@@ -422,6 +422,9 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
               }),
           },
           styleSheets: [`/viewer.css`],
+          isEditableAnnotation: function (annotation:any) {
+            return !annotation.isSignature;
+          },
         }).then(async function (inst: any) {
           setInstance(inst);
 
