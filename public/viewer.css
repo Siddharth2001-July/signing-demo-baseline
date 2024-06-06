@@ -18,17 +18,17 @@
 }
 
 .custom-signature-wrapper {
-  border: 0.5px solid #dbdee4;
+  border: 0.03125rem solid #dbdee4;
 }
 
 .custom-annotation-name {
   background-color: #fff;
   color: #3d434e;
-  font-size: 14px;
+  font-size: 0.875rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding-inline: 3px;
+  padding-inline: 0.1875rem;
 }
 
 .signed .custom-annotation-wrapper {
@@ -38,7 +38,7 @@
 
 .custom-signature {
   align-items: center;
-  padding: 9px 0 5px;
+  padding: 0.5625rem 0 0.3125rem;
 }
 
 .custom-signature-label {
@@ -55,14 +55,14 @@
   display: inline-block;
   background-color: transparent;
   /* border: 1px solid rgb(180, 184, 228); */
-  border-radius: 10px;
+  border-radius: 0.625rem;
 }
 
 .signature-label-demo {
   position: absolute;
-  top: -54%;
-  left: 25%;
-  font-size: 8px;
+  top: -1.6rem;
+  left: 0rem;
+  font-size: 0.5rem;
   background-color: transparent;
   padding: 0;
   color: #555
@@ -70,23 +70,23 @@
 
 .signature-id-demo {
   position: absolute;
-  top: 92%;
-  left: 2%;
-  font-size: 8px;
+  bottom: -1.6rem;
+  left: 1.8rem;
+  font-size: 0.5rem;
   background-color: transparent;
-  padding: 0 5px;
+  padding: 0 0.3125rem;
   color: #555;
 }
 
 .signature-box-demo::before {
   content: "";
   position: absolute;
-  top: -15px;
-  left: -15px;
-  width: 30px;
-  height: 60px;
-  border: 1px solid grey;
-  border-radius: 20px 0 0 0;
+  top: -0.9375rem;
+  left: -0.9375rem;
+  width: 0.875rem;
+  height: calc(var(--box-height)/2);
+  border: 0.0625rem solid grey;
+  border-radius: 1.25rem 0 0 0;
   border-bottom: none;
   border-right: none;
 }
@@ -94,12 +94,12 @@
 .signature-box-demo::after {
   content: "";
   position: absolute;
-  bottom: -15px;
-  left: -15px;
-  width: 80px;
-  height: 40px;
-  border: 1px solid grey;
-  border-radius: 0 0 0 20px;
+  bottom: -0.9375rem;
+  left: -0.9375rem;
+  width: 3rem;
+  height: calc(var(--box-height)/2);
+  border: 0.0625rem solid grey;
+  border-radius: 0 0 0 1.25rem; 
   border-top: none;
   border-right: none;
 }
