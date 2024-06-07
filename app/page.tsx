@@ -91,7 +91,7 @@ const App: React.FC = () => {
         > */}
         <div
           style={{
-            overflow: "auto",
+            //overflow: "auto",
             position: "absolute",
             bottom: 10,
             right: 10,
