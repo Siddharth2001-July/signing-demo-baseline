@@ -1,11 +1,6 @@
 'use server'
 
 import { AIMessage } from "@/utils/types";
-import path from "path";
-const axios = require('axios');
-const fs = require('fs');
-import { v4 as uuidv4 } from 'uuid';
-import watermarkImage from './signed/watermark.jpg';
 
 const instructions = `you are an AI assistant on a PSPDFKit signing demo page, people will ask you questions about the code of the project which is
      posted below. It’s a Next.js project. If people ask you about anything else besides this signing demo, politely decline that you can’t answer.
@@ -63,69 +58,5 @@ export async function testAPI () {
   return "Hello";
 }
 
-export async function applyDigitalSignature(form: FormData) {
-  console.log("Starting signing ");
-  let respondWith : DSRESPONSE = {
-    success: false,
-    fileName: "",
-  };
-  form.append('data', JSON.stringify({
-    signatureType: "cades",
-    flatten: true,
-    cadesLevel: "b-lt",
-    appearance : {
-      mode: "signatureAndDescription"
-    },
-    formFieldName: "DigitalSignature",
-    signatureMetadata:{
-      signerName: "Signing Demo",
-      signatureReason: "Demo digital signature using PSPDFKit",
-      signatureLocation: "Planet Earth"
-    },
-  }))
-  const apiToken = process.env.NEXT_PSPDFKIT_API_FREE;
-  try {
-    const response = await axios.post('https://api.pspdfkit.com/sign', form, {
-      headers: {
-        'Authorization': `Bearer ${apiToken}`
-      },
-      responseType: "stream"
-    })
-
-    const publicDir = path.join(process.cwd(), 'public/signed');
-    const uniqueFileName = `result_${uuidv4()}.pdf`;
-    const filePath = path.join(publicDir, uniqueFileName);
-    await response.data.pipe(await fs.createWriteStream(filePath));
-
-    respondWith.success = response.status === 200;
-    respondWith.fileName = uniqueFileName;
-    console.log('Response:', uniqueFileName);
-  } catch (e) {
-    const errorString = e
-    //@ts-ignore
-    if(e && e.response && e.response.data){
-      //@ts-ignore
-     await streamToString(e.response.data)
-    }
-    console.log(errorString)
-    }
-
-    await sleep(6000);
-  return respondWith;
-}
 
 const sleep = (ms:any) => new Promise(resolve => setTimeout(resolve, ms));
-
-function streamToString(stream:any) {
-  const chunks:any = []
-  return new Promise((resolve, reject) => {
-    stream.on("data", (chunk:any) => chunks.push(Buffer.from(chunk)))
-    stream.on("error", (err:any) => reject(err))
-    stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")))
-  })
-}
-
-interface DSRESPONSE {
-  success: boolean;
-  fileName: string;
-}

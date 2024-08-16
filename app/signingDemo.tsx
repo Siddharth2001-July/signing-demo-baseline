@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { AnnotationTypeEnum, User } from "../utils/types";
-import {applyDigitalSignature} from "./api/askAI";
 
 const ActionButton = dynamic(
   () => import("@baseline-ui/core").then((mod) => mod.ActionButton),
@@ -655,7 +654,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   const applyDSign = async () => {
     setIsLoading(true);
-    let res = {success: false, fileName: ""};
+    //let res = {success: false, fileName: ""};
     try {
       console.log("Start signing");
       const doc = await instance.exportPDF();
@@ -666,19 +665,23 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
       formData.append('file', pdfBlob);
       formData.append('image', imageBlob);
       //formData.append('graphicImage', imageBlob)
-      res = await applyDigitalSignature(formData);
-      const fileUrl = `/signed/${res.fileName}`;
-      const isFileAvailable = await checkFileAvailability(fileUrl);
+      //res = await applyDigitalSignature(formData);
+      const res = await fetch('./api/digitalSigningLite', {
+        method:'POST',
+        body: formData
+      })
       //Loading new instance of PSPDFKit if success
       //res = {success: true, fileName: "result_eb24d612-42a1-4204-b842-e111aa85c187.pdf"};
       const container = containerRef.current; // This `useRef` instance will render the PDF.
-      if(res.success && container && isFileAvailable){
+      if(container && res.ok){
+        const pdfBlob = await res.blob();
+        const pdfUrl = URL.createObjectURL(pdfBlob);
         await PSPDFKit.unload(container) // Ensure that there's only one PSPDFKit instance.
         console.log("Unloaded container and loading new instance");
         const newInstance = await PSPDFKit.load({
           licenseKey: process.env.NEXT_PUBLIC_LICENSE_KEY as string,
           container,
-          document: `/signed/${res.fileName}`, 
+          document: pdfUrl, 
           baseUrl: `${window.location.protocol}//${window.location.host}/`,
           trustedCAsCallback: async () => {
             let res;
@@ -708,7 +711,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
       }
       console.log("Response from signing", res);
     } catch (error) {
-      console.error('Error caught in catch block:', error, "Response from BE", res);
+      console.error('Error caught in catch block:', error);
     } finally{
       setIsLoading(false);
     }
