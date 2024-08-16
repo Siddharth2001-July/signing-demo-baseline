@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { AnnotationTypeEnum, User } from "../utils/types";
+import {applyDigitalSignature} from "./api/askAI";
+
 const ActionButton = dynamic(
   () => import("@baseline-ui/core").then((mod) => mod.ActionButton),
   { ssr: false }
@@ -122,12 +124,27 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     const signee = currSigneeRef.current;
     const user = currUserRef.current;
     const pageIndex = onPageIndexRef.current;
-    const rectWidth = annotationType === AnnotationTypeEnum.INITIAL ? 70 : 120;
-    const rectHeight =
-      annotationType === AnnotationTypeEnum.SIGNATURE ||
-      annotationType === AnnotationTypeEnum.INITIAL
-        ? 60
-        : 40;
+    let rectWidth = 120;
+    let rectHeight = 40;
+    switch (annotationType) {
+      case AnnotationTypeEnum.INITIAL:
+        rectWidth = 70;
+        rectHeight = 40;
+        break;
+
+      case AnnotationTypeEnum.SIGNATURE:
+        rectWidth = 120;
+        rectHeight = 60;
+        break;
+      
+      case AnnotationTypeEnum.DS:
+        rectWidth = 250;
+        rectHeight = 100;
+        break;
+    
+      default:
+        break;
+      }
     const clientRect = new PSPDFKit.Geometry.Rect({
       left: e.clientX - rectWidth / 2,
       top: e.clientY - rectHeight / 2,
@@ -165,7 +182,34 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         readOnly: signee.id != user.id,
       });
       await inst.create([widget, formField]);
-    } else {
+    }
+    else if(annotationType === AnnotationTypeEnum.DS){
+      const widget = new PSPDFKit.Annotations.WidgetAnnotation({
+        boundingBox: pageRect,
+        formFieldName: "DigitalSignature",
+        id: instantId,
+        pageIndex,
+        name: instantId,
+        customData: {
+          createdBy: user.id,
+          signerID: user.id,
+          signerEmail: email,
+          type: annotationType,
+          signerColor: PSPDFKit.Color.WHITE,
+          isInitial: false,
+        },
+        //backgroundColor: signee.color,
+      });
+      const formField = new PSPDFKit.FormFields.SignatureFormField({
+        annotationIds: PSPDFKit.Immutable.List([widget.id]),
+        name: 'DigitalSignature',
+        id: instantId,
+        readOnly: signee.id != user.id,
+      });
+      const created = await inst.create([widget, formField]);
+      console.log("Digital Signature created", created);
+    } 
+    else {
       const text = new PSPDFKit.Annotations.TextAnnotation({
         pageIndex,
         boundingBox: pageRect,
@@ -607,9 +651,78 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     } catch (error) {}
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  const applyDSign = async () => {
+    setIsLoading(true);
+    let res = {success: false, fileName: ""};
+    try {
+      console.log("Start signing");
+      const doc = await instance.exportPDF();
+      console.log("PDF exported and sending for signing ", doc instanceof ArrayBuffer);
+      const pdfBlob = new Blob([doc], { type: "application/pdf" });
+      const imageBlob = await imageToBlob(`${window.location.protocol}//${window.location.host}/signed/watermark.jpg`);
+      const formData = new FormData();
+      formData.append('file', pdfBlob);
+      formData.append('image', imageBlob);
+      //formData.append('graphicImage', imageBlob)
+      res = await applyDigitalSignature(formData);
+      const fileUrl = `/signed/${res.fileName}`;
+      const isFileAvailable = await checkFileAvailability(fileUrl);
+      //Loading new instance of PSPDFKit if success
+      //res = {success: true, fileName: "result_d74aec07-97d1-4323-80e6-d1dd4fca5c77.pdf"};
+      const container = containerRef.current; // This `useRef` instance will render the PDF.
+      if(res.success && container && isFileAvailable){
+        await PSPDFKit.unload(container) // Ensure that there's only one PSPDFKit instance.
+        console.log("Unloaded container and loading new instance");
+        const newInstance = await PSPDFKit.load({
+          licenseKey: process.env.NEXT_PUBLIC_LICENSE_KEY as string,
+          container,
+          document: `/signed/${res.fileName}`, 
+          baseUrl: `${window.location.protocol}//${window.location.host}/`,
+          trustedCAsCallback: async () => {
+            let res;
+            let arrayBuffer;
+            try {
+              res = await fetch("/signed/CertExchangeSid.cer");
+              arrayBuffer = await res.arrayBuffer();
+            } catch (e) {
+              throw `Error ${e}`;
+            }
+            if (!res.ok) {
+              throw `HTTP Error ${res}`;
+            }
+            return [arrayBuffer];
+          },
+        });
+        console.log("New instance loaded");
+        await newInstance.setViewState((viewState:any) => (
+          viewState.set("showSignatureValidationStatus", PSPDFKit.ShowSignatureValidationStatusMode.IF_SIGNED)
+        ));
+        setIsVisible(false);
+        console.log("Signature validation status set");
+        setInstance(newInstance);    
+      }
+      else{
+        alert("Error in signing");
+      }
+      console.log("Response from signing", res);
+    } catch (error) {
+      console.error('Error caught in catch block:', error, "Response from BE", res);
+    } finally{
+      setIsLoading(false);
+    }
+  }
+  const LoadingSpinner = () => (
+    <div className="loading-spinner">
+      <div className="spinner"></div>
+    </div>
+  );
+
   const [selectedSignee, setSelectedSignee] = useState(currSigneeRef.current);
   return (
     <div>
+      {isLoading && <LoadingSpinner />}
       <div
         style={{
           display: "flex",
@@ -824,6 +937,21 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                   onDragEnd={onDragEnd}
                   userColor={currSignee.color}
                 />
+                <DraggableAnnotation 
+                className="mt-5"
+                type={AnnotationTypeEnum.DS}
+                label="Digital Signature"
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
+                userColor={{r: 255, g: 255, b: 255}}
+                />
+                <ActionButton
+                  label={"Apply Digital Signature"}
+                  size="md"
+                  onPress={async function da(){await applyDSign()}}
+                  className="custom-button"
+                  style={{ margin: "15px 0px 0px 0px" }}
+                />
               </div>
             </>
           )}
@@ -914,3 +1042,28 @@ const DraggableAnnotation = ({
     </div>
   );
 };
+const checkFileAvailability = async (url : string, maxAttempts = 5, interval = 1000) => {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      if (response.ok) return true;
+    } catch (error) {
+      console.log(`Attempt ${i + 1}: File not available yet`);
+    }
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
+  return false;
+};
+async function imageToBlob(imageUrl: string): Promise<Blob> {
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const blob = await response.blob();
+    return blob;
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    throw error;
+  }
+}
