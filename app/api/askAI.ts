@@ -83,7 +83,7 @@ export async function applyDigitalSignature(form: FormData) {
       signatureLocation: "Planet Earth"
     },
   }))
-  const apiToken = 'pdf_live_OF3eslod9lZAAtZ8YBKbOTAh32ldor9CMzILVioIjuU';
+  const apiToken = process.env.NEXT_PUBLIC_PSPDFKIT_API_FREE;
   try {
     const response = await axios.post('https://api.pspdfkit.com/sign', form, {
       headers: {
