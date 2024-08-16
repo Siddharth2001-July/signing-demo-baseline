@@ -24,7 +24,7 @@ export async function askAI(messagesArr: AIMessage[]) {
     //@ts-ignore
     headers: {
       "Content-Type": "application/json",
-      Authorization: process.env.NEXT_PUBLIC_OPEN_AI_KEY
+      Authorization: process.env.NEXT_OPEN_AI_KEY
     },
     body: JSON.stringify({
       model: "gpt-3.5-turbo",
@@ -83,7 +83,7 @@ export async function applyDigitalSignature(form: FormData) {
       signatureLocation: "Planet Earth"
     },
   }))
-  const apiToken = process.env.NEXT_PUBLIC_PSPDFKIT_API_FREE;
+  const apiToken = process.env.NEXT_PSPDFKIT_API_FREE;
   try {
     const response = await axios.post('https://api.pspdfkit.com/sign', form, {
       headers: {
