@@ -400,6 +400,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   // Tracking whether add Signature/Initial UI
   let isCreateInitial: boolean = false;
 
+  const [pdfUrl, setPdfUrl] = useState<string>("/document.pdf");
   // Load PSPDFKit
   useEffect(() => {
     const container = containerRef.current;
@@ -454,7 +455,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             },
           },
           container,
-          document: "/document.pdf",
+          document: pdfUrl,
           baseUrl: `${window.location.protocol}//${window.location.host}/`,
           toolbarItems: TOOLBAR_ITEMS,
           disableTextSelection: true,
@@ -470,6 +471,10 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           },
         }).then(async function (inst: any) {
           setInstance(inst);
+          // **** Setting Signature Validation Status ****
+          await inst.setViewState((viewState:any) => (
+             viewState.set("showSignatureValidationStatus", PSPDFKit.ShowSignatureValidationStatusMode.IF_SIGNED)
+          ));
 
           // **** Setting Page Index ****
 
@@ -612,7 +617,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         });
       }
     })();
-  }, []);
+  }, [pdfUrl]);
 
   const signeeChanged = (signee: User) => {
     setCurrSignee(signee);
@@ -670,41 +675,12 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         method:'POST',
         body: formData
       })
-      //Loading new instance of PSPDFKit if success
-      //res = {success: true, fileName: "result_eb24d612-42a1-4204-b842-e111aa85c187.pdf"};
       const container = containerRef.current; // This `useRef` instance will render the PDF.
       if(container && res.ok){
         const pdfBlob = await res.blob();
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        await PSPDFKit.unload(container) // Ensure that there's only one PSPDFKit instance.
-        console.log("Unloaded container and loading new instance");
-        const newInstance = await PSPDFKit.load({
-          licenseKey: process.env.NEXT_PUBLIC_LICENSE_KEY as string,
-          container,
-          document: pdfUrl, 
-          baseUrl: `${window.location.protocol}//${window.location.host}/`,
-          trustedCAsCallback: async () => {
-            let res;
-            let arrayBuffer;
-            try {
-              res = await fetch("/signed/CertExchangeSid.cer");
-              arrayBuffer = await res.arrayBuffer();
-            } catch (e) {
-              throw `Error ${e}`;
-            }
-            if (!res.ok) {
-              throw `HTTP Error ${res}`;
-            }
-            return [arrayBuffer];
-          },
-        });
-        console.log("New instance loaded");
-        await newInstance.setViewState((viewState:any) => (
-          viewState.set("showSignatureValidationStatus", PSPDFKit.ShowSignatureValidationStatusMode.IF_SIGNED)
-        ));
-        setIsVisible(false);
-        console.log("Signature validation status set");
-        setInstance(newInstance);    
+        const newPdfUrl = URL.createObjectURL(pdfBlob);
+        // Load the new PDF into the viewer
+        setPdfUrl(newPdfUrl);
       }
       else{
         alert("Error in signing");
