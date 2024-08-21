@@ -469,6 +469,22 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           isEditableAnnotation: function (annotation:any) {
             return !annotation.isSignature;
           },
+          trustedCAsCallback: async () => {
+            let res;
+            let arrayBuffer;
+            try {
+              res = await fetch("/signed/CertExchangeSid.cer");
+              // Use `res.text()` instead for a PEM-encoded certificate.
+              arrayBuffer = await res.arrayBuffer();
+            } catch (e) {
+              throw `Error ${e}`;
+            }
+            if (!res.ok) {
+              throw `HTTP Error ${res.status}`;
+            }
+        
+            return [arrayBuffer];
+          }
         }).then(async function (inst: any) {
           setInstance(inst);
           // **** Setting Signature Validation Status ****
