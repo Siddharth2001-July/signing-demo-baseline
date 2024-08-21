@@ -470,19 +470,21 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             return !annotation.isSignature;
           },
           trustedCAsCallback: async () => {
-            let res;
             let arrayBuffer;
             try {
-              res = await fetch("/signed/CertExchangeSid.cer");
-              // Use `res.text()` instead for a PEM-encoded certificate.
-              arrayBuffer = await res.arrayBuffer();
+              const response = await fetch('/api/digitalSigningLite', {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              });
+              
+              const apiRes = await response.json();
+              console.log(apiRes);
+              arrayBuffer = atob(apiRes.data.data.ca_certificates[0]);
             } catch (e) {
               throw `Error ${e}`;
             }
-            if (!res.ok) {
-              throw `HTTP Error ${res.status}`;
-            }
-        
             return [arrayBuffer];
           }
         }).then(async function (inst: any) {

@@ -41,3 +41,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Error in digital signing process' }, { status: 500 });
   }
 }
+
+export async function GET(request: NextRequest) {
+  try {
+    const apiToken = process.env.NEXT_PSPDFKIT_API_FREE;
+    const response = await axios.get('https://api.pspdfkit.com/i/certificates', {
+      headers: {
+        'Authorization': `Bearer ${apiToken}`,
+      },
+    });
+
+
+    return NextResponse.json({
+      data : response.data
+    }, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  } catch (error) {
+    console.error('Error in fetching certificates:', error);
+    return NextResponse.json({ error: 'Error in fetching certificates' }, { status: 500 });
+  }
+}
