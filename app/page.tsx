@@ -3,7 +3,7 @@ import { User } from "../utils/types";
 import { useEffect, useState } from "react";
 import { ChatDialog } from "@baseline-ui/recipes";
 import { AIMessage } from "../utils/types";
-import askAI from "./api/askAI";
+import {askAI} from "./api/askAI";
 import dynamic from "next/dynamic";
 import { chatBotSVG } from "@/utils/helpers";
 

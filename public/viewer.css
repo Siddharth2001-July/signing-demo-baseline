@@ -4,10 +4,10 @@
   display: none !important;
 }
 
-.PSPDFKit-Annotation-Widget-Signature > figure,
+/* .PSPDFKit-Annotation-Widget-Signature > figure,
 .PSPDFKit-Annotation-Widget-Signature-Badge {
   display: none;
-}
+} */
 
 /* Custom Renderers */
 .custom-annotation-wrapper {

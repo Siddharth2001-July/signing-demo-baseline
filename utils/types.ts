@@ -3,7 +3,8 @@ export enum AnnotationTypeEnum {
   NAME = "name",
   SIGNATURE = "signature",
   DATE = "date",
-  INITIAL = "initial"
+  INITIAL = "initial",
+  DS = "ds"
 }
 
 export interface User {
