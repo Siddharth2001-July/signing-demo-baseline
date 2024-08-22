@@ -86,17 +86,6 @@ export const getAnnotationRenderers = ({ annotation }: any) => {
     return ele;
   }
 
-  // Comparing created and updated dates for Digital Signatures
-  const dateCreated = new Date(annotation.createdAt);
-  const dateUpdated = new Date(annotation.updatedAt);
-  const sameDate = dateCreated.getDate() === dateUpdated.getDate();
-  if(annotation.customData?.type === AnnotationTypeEnum.DS && !sameDate) {
-    console.log("Digital Signature updated");
-    let ele = document.createElement('div');
-    ele.id = "DSSiddharth"
-    return { node: ele, append: true };
-  }
-
   if (annotation.name) {
 
     if (renderConfigurations[annotation.id]) {

@@ -399,6 +399,8 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   // Tracking whether add Signature/Initial UI
   let isCreateInitial: boolean = false;
+  var trackInst:any = null;
+  var digitallySigned:any = null;
 
   const [pdfUrl, setPdfUrl] = useState<string>("/document.pdf");
   // Load PSPDFKit
@@ -460,10 +462,14 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           toolbarItems: TOOLBAR_ITEMS,
           disableTextSelection: true,
           customRenderers: {
-            Annotation: ({ annotation }: any) =>
-              getAnnotationRenderers({
-                annotation,
-              }),
+            Annotation:  ({ annotation }: any) =>{  
+              if(digitallySigned && annotation.customData?.type === AnnotationTypeEnum.DS){
+                const isFieldSigned = digitallySigned.signatures.find((sign: any) => sign.signatureFormFQN === annotation.formFieldName);
+                const ele = document.createElement('div');
+                if(isFieldSigned) return {node : ele, append: true}
+              }
+              return getAnnotationRenderers({annotation})
+            }
           },
           styleSheets: [`/viewer.css`],
           isEditableAnnotation: function (annotation:any) {
@@ -488,7 +494,12 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             return [arrayBuffer];
           }
         }).then(async function (inst: any) {
+          trackInst = inst;
           setInstance(inst);
+
+          // **** Getting Digital Signature Info ****
+          const info = await inst.getSignaturesInfo();
+          if(info.status === "valid") digitallySigned = info;
           // **** Setting Signature Validation Status ****
           await inst.setViewState((viewState:any) => (
              viewState.set("showSignatureValidationStatus", PSPDFKit.ShowSignatureValidationStatusMode.IF_SIGNED)
