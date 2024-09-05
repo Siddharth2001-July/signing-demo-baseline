@@ -476,7 +476,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             return !annotation.isSignature;
           },
           trustedCAsCallback: async () => {
-            let arrayBuffer;
+            let arrayBuffers;
             try {
               const response = await fetch('/api/digitalSigningLite', {
                 method: 'GET',
@@ -485,13 +485,23 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                 },
               });
               
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+          
               const apiRes = await response.json();
               console.log(apiRes);
-              arrayBuffer = atob(apiRes.data.data.ca_certificates[0]);
+          
+              if (!apiRes.data || !apiRes.data.data || !Array.isArray(apiRes.data.data.ca_certificates)) {
+                throw new Error('Invalid API response structure');
+              }
+          
+              arrayBuffers = apiRes.data.data.ca_certificates.map(base64ToArrayBuffer);
             } catch (e) {
+              console.error('Error fetching CA certificates:', e);
               throw `Error ${e}`;
             }
-            return [arrayBuffer];
+            return arrayBuffers;
           }
         }).then(async function (inst: any) {
           trackInst = inst;
@@ -1050,18 +1060,6 @@ const DraggableAnnotation = ({
     </div>
   );
 };
-const checkFileAvailability = async (url : string, maxAttempts = 5, interval = 1000) => {
-  for (let i = 0; i < maxAttempts; i++) {
-    try {
-      const response = await fetch(url, { method: 'HEAD' });
-      if (response.ok) return true;
-    } catch (error) {
-      console.log(`Attempt ${i + 1}: File not available yet`);
-    }
-    await new Promise(resolve => setTimeout(resolve, interval));
-  }
-  return false;
-};
 async function imageToBlob(imageUrl: string): Promise<Blob> {
   try {
     const response = await fetch(imageUrl);
@@ -1075,3 +1073,11 @@ async function imageToBlob(imageUrl: string): Promise<Blob> {
     throw error;
   }
 }
+const base64ToArrayBuffer = (base64:any) => {
+  const binaryString = atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+};

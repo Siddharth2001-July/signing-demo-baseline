@@ -1,6 +1,8 @@
 'use server'
 import { NextRequest, NextResponse } from 'next/server';
 import axios from "axios";
+import fs from 'fs';
+import path from 'path';
 
 export async function POST(req: NextRequest) {
   try {
@@ -62,6 +64,21 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error in fetching certificates:', error);
-    return NextResponse.json({ error: 'Error in fetching certificates' }, { status: 500 });
+    // Convert the error object to a JSON string
+    const errorJson = JSON.stringify(error, null, 2);
+
+    // Define the file path
+    let publicDir = path.join(process.cwd(), 'public');
+    const filePath = path.join(publicDir, 'error.json');
+
+    // Write the JSON string to a file
+    fs.writeFile(filePath, errorJson, 'utf8', (err) => {
+      if (err) {
+        console.error('Error writing to file:', err);
+      } else {
+        console.log('Error successfully written to file');
+      }
+    });
+    return NextResponse.json({ error: 'Error in fetching certificates' }, { status: 400 });
   }
 }
