@@ -12,6 +12,7 @@ const Select = dynamic(
 );
 
 import {
+  duplicateAnnotationTooltipCallback,
   handleAnnotatitonCreation,
   handleAnnotatitonDelete,
   TOOLBAR_ITEMS,
@@ -23,6 +24,7 @@ import {
   dateSVG,
 } from "../utils/helpers";
 import dynamic from "next/dynamic";
+import { group } from "console";
 
 /**
  * SignDemo component.
@@ -140,6 +142,21 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         rectWidth = 250;
         rectHeight = 100;
         break;
+
+      case AnnotationTypeEnum.RadioButton:
+        rectWidth = 25;
+        rectHeight = 25;
+        break;
+
+      case AnnotationTypeEnum.CheckBox:
+        rectWidth = 25;
+        rectHeight = 25;
+        break;
+
+      case AnnotationTypeEnum.TextField:
+        rectWidth = 120;
+        rectHeight = 40;
+        break;
     
       default:
         break;
@@ -208,6 +225,111 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
       const created = await inst.create([widget, formField]);
       console.log("Digital Signature created", created);
     } 
+    else if (annotationType === AnnotationTypeEnum.RadioButton){
+      const radioWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+        id: instantId,
+        pageIndex: pageIndex,
+        formFieldName: instantId,
+        boundingBox: pageRect,
+        customData: {
+          createdBy: user.id,
+          signerID: signee.id,
+          signerEmail: email,
+          type: annotationType,
+          signerColor: signee.color,
+        },
+      });
+      // const radioWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
+      //   id: PSPDFKit.generateInstantId(),
+      //   pageIndex: pageIndex,
+      //   formFieldName: "MyFormField",
+      //   boundingBox: new PSPDFKit.Geometry.Rect({
+      //     left: pageRect.left + 30,
+      //     top: pageRect.top,
+      //     width: pageRect.width,
+      //     height: pageRect.height,
+      //   }),
+      //   customData: {
+      //     createdBy: user.id,
+      //     signerID: signee.id,
+      //     signerEmail: email,
+      //     type: annotationType,
+      //     signerColor: signee.color,
+      //   },
+      // });
+      const formField = new PSPDFKit.FormFields.RadioButtonFormField({
+        name: instantId,
+        annotationIds: new PSPDFKit.Immutable.List([
+          radioWidget1.id,
+          // radioWidget2.id
+        ]),
+        options: new PSPDFKit.Immutable.List([
+          new PSPDFKit.FormOption({
+            label: "Option 1",
+            value: "1"
+          }),
+          // new PSPDFKit.FormOption({
+          //   label: "Option 2",
+          //   value: "2"
+          // })
+        ]),
+        defaultValue: "1"
+      });
+      await inst.create([radioWidget1,
+         //radioWidget2,
+          formField]);
+    }
+    else if (annotationType === AnnotationTypeEnum.CheckBox){
+      const checkBoxWidget = new PSPDFKit.Annotations.WidgetAnnotation({
+        id: instantId,
+        pageIndex: pageIndex,
+        formFieldName: instantId,
+        boundingBox: pageRect,
+        customData: {
+          createdBy: user.id,
+          signerID: signee.id,
+          signerEmail: email,
+          type: annotationType,
+          signerColor: signee.color,
+        },
+      });
+      const formField = new PSPDFKit.FormFields.CheckBoxFormField({
+        id: instantId,
+        name: instantId,
+        annotationIds: new PSPDFKit.Immutable.List([checkBoxWidget.id]),
+        defaultValue: false,
+        options: new PSPDFKit.Immutable.List([
+          new PSPDFKit.FormOption({
+            label: "Option 1",
+            value: "1"
+          }),
+        ])
+      });
+      await inst.create([checkBoxWidget, formField]);
+    }
+    else if (annotationType === AnnotationTypeEnum.TextField){
+      const text = new PSPDFKit.Annotations.TextAnnotation({
+        pageIndex,
+        boundingBox: pageRect,
+        text: {
+          format: "plain",
+          value: "Text",
+        },
+        name: instantId,
+        customData: {
+          signerEmail: email,
+          type: annotationType,
+          signerColor: signee.color,
+        },
+        font: "Helvetica",
+        fontSize: rectHeight * 0.6,
+        horizontalAlign: "left",
+        verticalAlign: "top",
+        isEditable: true,
+        //backgroundColor: signee.color,
+      });
+      await inst.create(text);
+    }
     else {
       const text = new PSPDFKit.Annotations.TextAnnotation({
         pageIndex,
@@ -223,11 +345,11 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           signerColor: signee.color,
         },
         font: "Helvetica",
-        fontSize: 14,
-        horizontalAlign: "center",
-        verticalAlign: "center",
+        fontSize: rectHeight * 0.6,
+        horizontalAlign: "left",
+        verticalAlign: "top",
         isEditable: false,
-        backgroundColor: signee.color,
+        //backgroundColor: signee.color,
       });
       await inst.create(text);
     }
@@ -459,8 +581,8 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           container,
           document: pdfUrl,
           baseUrl: `${window.location.protocol}//${window.location.host}/`,
-          toolbarItems: TOOLBAR_ITEMS,
-          disableTextSelection: true,
+          toolbarItems: [...TOOLBAR_ITEMS],
+          disableTextSelection: false,
           customRenderers: {
             Annotation:  ({ annotation }: any) =>{  
               if(digitallySigned && annotation.customData?.type === AnnotationTypeEnum.DS){
@@ -468,7 +590,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                 const ele = document.createElement('div');
                 if(isFieldSigned) return {node : ele, append: true}
               }
-              return getAnnotationRenderers({annotation})
+              //return getAnnotationRenderers({annotation})
             }
           },
           styleSheets: [`/viewer.css`],
@@ -492,7 +614,8 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
               throw `Error ${e}`;
             }
             return [arrayBuffer];
-          }
+          },
+          annotationTooltipCallback: (annotation:any)=> duplicateAnnotationTooltipCallback(annotation, PSPDFKit, trackInst)
         }).then(async function (inst: any) {
           trackInst = inst;
           setInstance(inst);
@@ -555,11 +678,6 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             }
           });
           let formDesignMode = !1;
-
-          inst.setToolbarItems((items: any) => [
-            ...items,
-            { type: "form-creator" },
-          ]);
           inst.addEventListener("viewState.change", (viewState: any) => {
             formDesignMode = viewState.formDesignMode === true;
           });
@@ -626,23 +744,6 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             )
           );
           setIsTextAnnotationMovable(true);
-          // const scrollElement =
-          //   inst.contentDocument.querySelector(".PSPDFKit-Scroll");
-
-          // if (scrollElement === null) console.log("Scroll element not found");
-
-          // //@ts-ignore
-          // scrollElement.addEventListener("scroll", updateSignHereWidget(inst));
-          // // Update the "Sign Here" widget when someone signs
-          // inst.addEventListener("annotations.change", () => {
-          //   updateSignHereWidget(inst);
-          // });
-          // // Update widget with delay to make it visually pop
-          // window.setTimeout(updateSignHereWidget, 1e3);
-
-          // inst.exportInstantJSON().then((data) => {
-          //   localStorage.setItem("document", JSON.stringify(data));
-          // });
         });
       }
     })();
@@ -912,14 +1013,14 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                   Drag & drop fields on the document
                 </div>
                 {/* Uncomment this to add draggable name field */}
-                <DraggableAnnotation
+                {/* <DraggableAnnotation
                   className="mt-5"
                   type={AnnotationTypeEnum.NAME}
                   label="Name"
                   onDragStart={onDragStart}
                   onDragEnd={onDragEnd}
                   userColor={currSignee.color}
-                />
+                /> */}
                 <DraggableAnnotation
                   className="mt-5"
                   type={AnnotationTypeEnum.SIGNATURE}
@@ -937,13 +1038,37 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                   userColor={currSignee.color}
                 />
                 {/* Uncomment this to add draggable date field */}
-                <DraggableAnnotation
+                {/* <DraggableAnnotation
                   className="mt-5"
                   type={AnnotationTypeEnum.DATE}
                   label="Date"
                   onDragStart={onDragStart}
                   onDragEnd={onDragEnd}
                   userColor={currSignee.color}
+                /> */}
+                <DraggableAnnotation 
+                className="mt-5"
+                type={AnnotationTypeEnum.RadioButton}
+                label="Radio Button"
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
+                userColor={{r: 255, g: 255, b: 255}}
+                />
+                <DraggableAnnotation 
+                className="mt-5"
+                type={AnnotationTypeEnum.CheckBox}
+                label="Check Box"
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
+                userColor={{r: 255, g: 255, b: 255}}
+                />
+                <DraggableAnnotation 
+                className="mt-5"
+                type={AnnotationTypeEnum.TextField}
+                label="Text Field"
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
+                userColor={{r: 255, g: 255, b: 255}}
                 />
                 <DraggableAnnotation 
                 className="mt-5"
@@ -1014,7 +1139,7 @@ const DraggableAnnotation = ({
       icon = initialsSVG;
       break;
     default:
-      icon = signSVG;
+      icon = personSVG;
       break;
   }
 
@@ -1049,18 +1174,6 @@ const DraggableAnnotation = ({
       </div>
     </div>
   );
-};
-const checkFileAvailability = async (url : string, maxAttempts = 5, interval = 1000) => {
-  for (let i = 0; i < maxAttempts; i++) {
-    try {
-      const response = await fetch(url, { method: 'HEAD' });
-      if (response.ok) return true;
-    } catch (error) {
-      console.log(`Attempt ${i + 1}: File not available yet`);
-    }
-    await new Promise(resolve => setTimeout(resolve, interval));
-  }
-  return false;
 };
 async function imageToBlob(imageUrl: string): Promise<Blob> {
   try {

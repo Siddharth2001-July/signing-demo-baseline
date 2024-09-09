@@ -16,7 +16,152 @@ export const TOOLBAR_ITEMS = [
   { type: "spacer" },
   { type: "print" },
   { type: "export-pdf" },
+  {type : "form-creator"}
 ];
+
+export const duplicateAnnotationTooltipCallback = (annotation:any, PSPDFKit:any, instance:any) => {
+  // Check if the annotation is a text annotation.
+  if (annotation instanceof PSPDFKit.Annotations.TextAnnotation) {
+    // This is the tooltip item that will be used.
+    const duplicateItem = {
+      type: "custom",
+      title: "Duplicate",
+      id: "tooltip-duplicate-annotation",
+      className: "TooltipItem-Duplication",
+      onPress: () => {
+        // For the new annotation, we will copy the current one but
+        // translate the annotation for 50px so that our users see the
+        // duplicated annotation.
+        const newInstantId = PSPDFKit.generateInstantId();
+        const newBoundingBox = annotation.boundingBox
+          .set("top", annotation.boundingBox.top + 50)
+          .set("left", annotation.boundingBox.left + 50);
+        // To make duplication work, we also need to remove the ID
+        // of the annotation.
+        const duplicatedAnnotation = annotation
+          .set("id", newInstantId)
+          .set("name", newInstantId)
+          .set("boundingBox", newBoundingBox);
+        // In the end, we just use `createAnnotation` on our
+        // PSPDFKit instance.
+        //debugger;
+        instance.create(duplicatedAnnotation);
+      }
+    };
+    return [duplicateItem];
+  } 
+  else if (annotation instanceof PSPDFKit.Annotations.WidgetAnnotation && annotation.customData.type === AnnotationTypeEnum.RadioButton) {
+    const duplicateItem = {
+      type: "custom",
+      title: "Add Option",
+      id: "tooltip-duplicate-annotation",
+      className: "TooltipItem-Duplication",
+      onPress: async() => {
+        // For the new annotation, we will copy the current one but
+        // translate the annotation for 50px so that our users see the
+        // duplicated annotation.
+        const allFormFields = await instance.getFormFields();
+        const formField = allFormFields.find((field:any) => field.name === annotation.formFieldName);
+        const newInstantId = PSPDFKit.generateInstantId();
+        const newBoundingBox = annotation.boundingBox
+          .set("top", annotation.boundingBox.top + 50)
+          .set("left", annotation.boundingBox.left + 50);
+        // To make duplication work, we also need to remove the ID
+        // of the annotation.
+        const duplicatedAnnotation = annotation
+          .set("id", newInstantId)
+          .set("name", newInstantId)
+          .set("boundingBox", newBoundingBox);
+
+        // Updating formField with new options
+        const randNum = Math.floor(Math.random() * 100);
+        const updatedFormField = formField
+        .set("annotationIds", new PSPDFKit.Immutable.List([...formField.annotationIds, newInstantId]))
+        .set("options", new PSPDFKit.Immutable.List([...formField.options, new PSPDFKit.FormOption({label:`Option ${randNum}`, value:`${randNum}`})]));
+        // In the end, we just use `createAnnotation` on our
+        // PSPDFKit instance.
+        await instance.create(duplicatedAnnotation);
+        await instance.update(updatedFormField);
+      }
+    };
+    const requiredItem = {
+      type: "custom",
+      title: "Required/NotRequired",
+      id: "tooltip-duplicate-annotation",
+      className: "TooltipItem-Duplication",
+      onPress: async() => {
+
+        // Updating formField
+        const allFormFields = await instance.getFormFields();
+        const formField = allFormFields.find((field:any) => field.name === annotation.formFieldName);
+        const isRequired = formField.required;
+        const updatedFormField = formField
+        .set("required", !isRequired);
+        // In the end, we just use `createAnnotation` on our
+        // PSPDFKit instance.
+        await instance.update(updatedFormField);
+      }
+    };
+    return [duplicateItem, requiredItem];    
+  }
+  else if (annotation instanceof PSPDFKit.Annotations.WidgetAnnotation && annotation.customData.type === AnnotationTypeEnum.CheckBox) {
+    const duplicateItem = {
+      type: "custom",
+      title: "Add Option",
+      id: "tooltip-duplicate-annotation",
+      className: "TooltipItem-Duplication",
+      onPress: async() => {
+        // For the new annotation, we will copy the current one but
+        // translate the annotation for 50px so that our users see the
+        // duplicated annotation.
+        const allFormFields = await instance.getFormFields();
+        const formField = allFormFields.find((field:any) => field.name === annotation.formFieldName);
+        const newInstantId = PSPDFKit.generateInstantId();
+        const newBoundingBox = annotation.boundingBox
+          .set("top", annotation.boundingBox.top + 50)
+          .set("left", annotation.boundingBox.left + 50);
+        // To make duplication work, we also need to remove the ID
+        // of the annotation.
+        const duplicatedAnnotation = annotation
+          .set("id", newInstantId)
+          .set("name", newInstantId)
+          .set("boundingBox", newBoundingBox);
+
+        // Updating formField with new options
+        const randNum = Math.floor(Math.random() * 100);
+        const updatedFormField = formField
+        .set("annotationIds", new PSPDFKit.Immutable.List([...formField.annotationIds, newInstantId]))
+        .set("options", new PSPDFKit.Immutable.List([...formField.options, new PSPDFKit.FormOption({label:`Option ${randNum}`, value:`${randNum}`})]));
+        // In the end, we just use `createAnnotation` on our
+        // PSPDFKit instance.
+        await instance.create(duplicatedAnnotation);
+        await instance.update(updatedFormField);
+      }
+    };
+    const requiredItem = {
+      type: "custom",
+      title: "Required/NotRequired",
+      id: "tooltip-duplicate-annotation",
+      className: "TooltipItem-Duplication",
+      onPress: async() => {
+
+        // Updating formField
+        const allFormFields = await instance.getFormFields();
+        const formField = allFormFields.find((field:any) => field.name === annotation.formFieldName);
+        const isRequired = formField.required;
+        const updatedFormField = formField
+        .set("required", !isRequired);
+        // In the end, we just use `createAnnotation` on our
+        // PSPDFKit instance.
+        await instance.update(updatedFormField);
+      }
+    };
+    return [duplicateItem, requiredItem];  
+  }
+  else {
+    return [];
+  }
+};
 
 function createCustomSignatureNode({ annotation, type }: any) {
   const container = document.createElement("div");

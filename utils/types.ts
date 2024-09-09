@@ -4,7 +4,10 @@ export enum AnnotationTypeEnum {
   SIGNATURE = "signature",
   DATE = "date",
   INITIAL = "initial",
-  DS = "ds"
+  DS = "ds",
+  RadioButton = "RadioButton",
+  CheckBox = "CheckBox",
+  TextField = "TextField",
 }
 
 export interface User {
