@@ -308,27 +308,29 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
       await inst.create([checkBoxWidget, formField]);
     }
     else if (annotationType === AnnotationTypeEnum.TextField){
-      const text = new PSPDFKit.Annotations.TextAnnotation({
-        pageIndex,
-        boundingBox: pageRect,
-        text: {
-          format: "plain",
-          value: "Text",
-        },
+      const textBoxWidget = new PSPDFKit.Annotations.WidgetAnnotation({
+        id: instantId,
+        pageIndex: pageIndex,
         name: instantId,
+        formFieldName: instantId,
+        boundingBox: pageRect,
         customData: {
+          createdBy: user.id,
+          signerID: signee.id,
           signerEmail: email,
           type: annotationType,
           signerColor: signee.color,
         },
-        font: "Helvetica",
-        fontSize: rectHeight * 0.6,
-        horizontalAlign: "left",
-        verticalAlign: "top",
-        isEditable: true,
-        //backgroundColor: signee.color,
       });
-      await inst.create(text);
+      const textField = new PSPDFKit.FormFields.TextFormField({
+        annotationIds: new PSPDFKit.Immutable.List([textBoxWidget.id]),
+        id: instantId,
+        name: instantId,
+        label: "Text Field",
+        maxLength: 100,
+        multiLine: false,
+      });
+      await inst.create([textBoxWidget, textField]);
     }
     else {
       const text = new PSPDFKit.Annotations.TextAnnotation({
@@ -359,29 +361,29 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     // );
 
     // @ts-ignore
-    inst.setOnAnnotationResizeStart((eve) => {
-      if (eve.annotation instanceof PSPDFKit.Annotations.WidgetAnnotation) {
-        return {
-          //maintainAspectRatio: true,
-          //responsive: false,
-          maxWidth: 250,
-          maxHeight: 100,
-          minWidth: 70,
-          minHeight: 30,
-        };
-      } else if (
-        eve.annotation instanceof PSPDFKit.Annotations.TextAnnotation
-      ) {
-        return {
-          //maintainAspectRatio: true,
-          //responsive: false,
-          maxWidth: 250,
-          maxHeight: 100,
-          minWidth: 70,
-          minHeight: 30,
-        };
-      }
-    });
+    // inst.setOnAnnotationResizeStart((eve) => {
+    //   if (eve.annotation instanceof PSPDFKit.Annotations.WidgetAnnotation) {
+    //     return {
+    //       //maintainAspectRatio: true,
+    //       //responsive: false,
+    //       maxWidth: 250,
+    //       maxHeight: 100,
+    //       minWidth: 70,
+    //       minHeight: 30,
+    //     };
+    //   } else if (
+    //     eve.annotation instanceof PSPDFKit.Annotations.TextAnnotation
+    //   ) {
+    //     return {
+    //       //maintainAspectRatio: true,
+    //       //responsive: false,
+    //       maxWidth: 250,
+    //       maxHeight: 100,
+    //       minWidth: 70,
+    //       minHeight: 30,
+    //     };
+    //   }
+    // });
   };
 
   const [isTextAnnotationMovable, setIsTextAnnotationMovable] = useState(false);
@@ -590,7 +592,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                 const ele = document.createElement('div');
                 if(isFieldSigned) return {node : ele, append: true}
               }
-              //return getAnnotationRenderers({annotation})
+              return getAnnotationRenderers({annotation})
             }
           },
           styleSheets: [`/viewer.css`],
