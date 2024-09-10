@@ -597,24 +597,24 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           isEditableAnnotation: function (annotation:any) {
             return !annotation.isSignature;
           },
-          trustedCAsCallback: async () => {
-            let arrayBuffer;
-            try {
-              const response = await fetch('/api/digitalSigningLite', {
-                method: 'GET',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              });
+          // trustedCAsCallback: async () => {
+          //   let arrayBuffer;
+          //   try {
+          //     const response = await fetch('/api/digitalSigningLite', {
+          //       method: 'GET',
+          //       headers: {
+          //         'Content-Type': 'application/json',
+          //       },
+          //     });
               
-              const apiRes = await response.json();
-              console.log(apiRes);
-              arrayBuffer = atob(apiRes.data.data.ca_certificates[0]);
-            } catch (e) {
-              throw `Error ${e}`;
-            }
-            return [arrayBuffer];
-          },
+          //     const apiRes = await response.json();
+          //     console.log(apiRes);
+          //     arrayBuffer = atob(apiRes.data.data.ca_certificates[0]);
+          //   } catch (e) {
+          //     console.warn('Error fetching trusted CAs:', e);
+          //   }
+          //   return [arrayBuffer];
+          // },
           annotationTooltipCallback: (annotation:any)=> duplicateAnnotationTooltipCallback(annotation, PSPDFKit, trackInst)
         }).then(async function (inst: any) {
           trackInst = inst;
