@@ -57,6 +57,3 @@ export async function testAPI () {
   console.log("Testing API");
   return "Hello";
 }
-
-
-const sleep = (ms:any) => new Promise(resolve => setTimeout(resolve, ms));

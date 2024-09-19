@@ -17,14 +17,13 @@ import {
   handleAnnotatitonDelete,
   TOOLBAR_ITEMS,
   getAnnotationRenderers,
-  //updateSignHereWidget,
-  initialsSVG,
-  signSVG,
-  personSVG,
-  dateSVG,
+  imageToBlob,
+  DraggableAnnotation,
+  LoadingSpinner,
+  handleDrop,
+  randomColor
 } from "../utils/helpers";
 import dynamic from "next/dynamic";
-import { group } from "console";
 
 /**
  * SignDemo component.
@@ -63,7 +62,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   useEffect(() => {
     if (PSPDFKit) {
       allUsers.forEach((user) => {
-        user.color = randomColor(PSPDFKit);
+        user.color = randomColor(PSPDFKit, users);
       });
     }
     setUsers(allUsers);
@@ -114,276 +113,6 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-  };
-
-  const handleDrop = async (e: any, inst: any, PSPDFKit: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const dataArray = e.dataTransfer.getData("text").split("%");
-    let [name, email, instantId, annotationType] = dataArray;
-    instantId = PSPDFKit.generateInstantId();
-    const signee = currSigneeRef.current;
-    const user = currUserRef.current;
-    const pageIndex = onPageIndexRef.current;
-    let rectWidth = 120;
-    let rectHeight = 40;
-    switch (annotationType) {
-      case AnnotationTypeEnum.INITIAL:
-        rectWidth = 70;
-        rectHeight = 40;
-        break;
-
-      case AnnotationTypeEnum.SIGNATURE:
-        rectWidth = 120;
-        rectHeight = 60;
-        break;
-      
-      case AnnotationTypeEnum.DS:
-        rectWidth = 250;
-        rectHeight = 100;
-        break;
-
-      case AnnotationTypeEnum.RadioButton:
-        rectWidth = 25;
-        rectHeight = 25;
-        break;
-
-      case AnnotationTypeEnum.CheckBox:
-        rectWidth = 25;
-        rectHeight = 25;
-        break;
-
-      case AnnotationTypeEnum.TextField:
-        rectWidth = 120;
-        rectHeight = 40;
-        break;
-    
-      default:
-        break;
-      }
-    const clientRect = new PSPDFKit.Geometry.Rect({
-      left: e.clientX - rectWidth / 2,
-      top: e.clientY - rectHeight / 2,
-      height: rectHeight,
-      width: rectWidth,
-    });
-    const pageRect = inst.transformContentClientToPageSpace(
-      clientRect,
-      pageIndex
-    ) as any;
-    if (
-      annotationType === AnnotationTypeEnum.SIGNATURE ||
-      annotationType === AnnotationTypeEnum.INITIAL
-    ) {
-      const widget = new PSPDFKit.Annotations.WidgetAnnotation({
-        boundingBox: pageRect,
-        formFieldName: instantId,
-        id: instantId,
-        pageIndex,
-        name: instantId,
-        customData: {
-          createdBy: user.id,
-          signerID: signee.id,
-          signerEmail: email,
-          type: annotationType,
-          signerColor: signee.color,
-          isInitial: annotationType === AnnotationTypeEnum.INITIAL,
-        },
-        //backgroundColor: signee.color,
-      });
-      const formField = new PSPDFKit.FormFields.SignatureFormField({
-        annotationIds: PSPDFKit.Immutable.List([widget.id]),
-        name: instantId,
-        id: instantId,
-        readOnly: signee.id != user.id,
-      });
-      await inst.create([widget, formField]);
-    }
-    else if(annotationType === AnnotationTypeEnum.DS){
-      const widget = new PSPDFKit.Annotations.WidgetAnnotation({
-        boundingBox: pageRect,
-        formFieldName: "DigitalSignature",
-        id: instantId,
-        pageIndex,
-        name: instantId,
-        customData: {
-          createdBy: user.id,
-          signerID: user.id,
-          signerEmail: email,
-          type: annotationType,
-          signerColor: PSPDFKit.Color.WHITE,
-          isInitial: false,
-        },
-        //backgroundColor: signee.color,
-      });
-      const formField = new PSPDFKit.FormFields.SignatureFormField({
-        annotationIds: PSPDFKit.Immutable.List([widget.id]),
-        name: 'DigitalSignature',
-        id: instantId,
-        readOnly: signee.id != user.id,
-      });
-      const created = await inst.create([widget, formField]);
-      console.log("Digital Signature created", created);
-    } 
-    else if (annotationType === AnnotationTypeEnum.RadioButton){
-      const radioWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
-        id: instantId,
-        pageIndex: pageIndex,
-        formFieldName: instantId,
-        boundingBox: pageRect,
-        customData: {
-          createdBy: user.id,
-          signerID: signee.id,
-          signerEmail: email,
-          type: annotationType,
-          signerColor: signee.color,
-        },
-      });
-      // const radioWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
-      //   id: PSPDFKit.generateInstantId(),
-      //   pageIndex: pageIndex,
-      //   formFieldName: "MyFormField",
-      //   boundingBox: new PSPDFKit.Geometry.Rect({
-      //     left: pageRect.left + 30,
-      //     top: pageRect.top,
-      //     width: pageRect.width,
-      //     height: pageRect.height,
-      //   }),
-      //   customData: {
-      //     createdBy: user.id,
-      //     signerID: signee.id,
-      //     signerEmail: email,
-      //     type: annotationType,
-      //     signerColor: signee.color,
-      //   },
-      // });
-      const formField = new PSPDFKit.FormFields.RadioButtonFormField({
-        name: instantId,
-        annotationIds: new PSPDFKit.Immutable.List([
-          radioWidget1.id,
-          // radioWidget2.id
-        ]),
-        options: new PSPDFKit.Immutable.List([
-          new PSPDFKit.FormOption({
-            label: "Option 1",
-            value: "1"
-          }),
-          // new PSPDFKit.FormOption({
-          //   label: "Option 2",
-          //   value: "2"
-          // })
-        ]),
-        defaultValue: "1"
-      });
-      await inst.create([radioWidget1,
-         //radioWidget2,
-          formField]);
-    }
-    else if (annotationType === AnnotationTypeEnum.CheckBox){
-      const checkBoxWidget = new PSPDFKit.Annotations.WidgetAnnotation({
-        id: instantId,
-        pageIndex: pageIndex,
-        formFieldName: instantId,
-        boundingBox: pageRect,
-        customData: {
-          createdBy: user.id,
-          signerID: signee.id,
-          signerEmail: email,
-          type: annotationType,
-          signerColor: signee.color,
-        },
-      });
-      const formField = new PSPDFKit.FormFields.CheckBoxFormField({
-        id: instantId,
-        name: instantId,
-        annotationIds: new PSPDFKit.Immutable.List([checkBoxWidget.id]),
-        defaultValue: false,
-        options: new PSPDFKit.Immutable.List([
-          new PSPDFKit.FormOption({
-            label: "Option 1",
-            value: "1"
-          }),
-        ])
-      });
-      await inst.create([checkBoxWidget, formField]);
-    }
-    else if (annotationType === AnnotationTypeEnum.TextField){
-      const textBoxWidget = new PSPDFKit.Annotations.WidgetAnnotation({
-        id: instantId,
-        pageIndex: pageIndex,
-        name: instantId,
-        formFieldName: instantId,
-        boundingBox: pageRect,
-        customData: {
-          createdBy: user.id,
-          signerID: signee.id,
-          signerEmail: email,
-          type: annotationType,
-          signerColor: signee.color,
-        },
-      });
-      const textField = new PSPDFKit.FormFields.TextFormField({
-        annotationIds: new PSPDFKit.Immutable.List([textBoxWidget.id]),
-        id: instantId,
-        name: instantId,
-        label: "Text Field",
-        maxLength: 100,
-        multiLine: false,
-      });
-      await inst.create([textBoxWidget, textField]);
-    }
-    else {
-      const text = new PSPDFKit.Annotations.TextAnnotation({
-        pageIndex,
-        boundingBox: pageRect,
-        text: {
-          format: "plain",
-          value: annotationType === "name" ? name : new Date().toDateString(),
-        },
-        name: name,
-        customData: {
-          signerEmail: email,
-          type: annotationType,
-          signerColor: signee.color,
-        },
-        font: "Helvetica",
-        fontSize: rectHeight * 0.6,
-        horizontalAlign: "left",
-        verticalAlign: "top",
-        isEditable: false,
-        //backgroundColor: signee.color,
-      });
-      await inst.create(text);
-    }
-    // set the viewer to form creator mode so that the user can place the field
-    // inst.setViewState((viewState) =>
-    //   viewState.set("interactionMode", PSPDFKit.InteractionMode.FORM_CREATOR)
-    // );
-
-    // @ts-ignore
-    // inst.setOnAnnotationResizeStart((eve) => {
-    //   if (eve.annotation instanceof PSPDFKit.Annotations.WidgetAnnotation) {
-    //     return {
-    //       //maintainAspectRatio: true,
-    //       //responsive: false,
-    //       maxWidth: 250,
-    //       maxHeight: 100,
-    //       minWidth: 70,
-    //       minHeight: 30,
-    //     };
-    //   } else if (
-    //     eve.annotation instanceof PSPDFKit.Annotations.TextAnnotation
-    //   ) {
-    //     return {
-    //       //maintainAspectRatio: true,
-    //       //responsive: false,
-    //       maxWidth: 250,
-    //       maxHeight: 100,
-    //       minWidth: 70,
-    //       minHeight: 30,
-    //     };
-    //   }
-    // });
   };
 
   const [isTextAnnotationMovable, setIsTextAnnotationMovable] = useState(false);
@@ -441,7 +170,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             id: id,
             name: name,
             email: email,
-            color: randomColor(PSPDFKit),
+            color: randomColor(PSPDFKit, users),
             role: "signee",
           } as User,
         ]);
@@ -451,24 +180,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     }
   };
 
-  // Function to get random color for the signee
-  const randomColor = (PSPDFKit: any) => {
-    const colors: any = [
-      PSPDFKit.Color.LIGHT_GREY,
-      PSPDFKit.Color.LIGHT_GREEN,
-      PSPDFKit.Color.LIGHT_YELLOW,
-      PSPDFKit.Color.LIGHT_ORANGE,
-      PSPDFKit.Color.LIGHT_RED,
-      PSPDFKit.Color.LIGHT_BLUE,
-      PSPDFKit.Color.fromHex("#0ffcf1"),
-    ];
-    const usedColors = users.map((signee) => signee.color);
-    const availableColors = colors.filter(
-      (color: any) => !usedColors.includes(color as any)
-    );
-    const randomIndex = Math.floor(Math.random() * availableColors.length);
-    return availableColors[randomIndex];
-  };
+ 
 
   // Function to handle user change
   const userChange = async (user: User, PSPDFKit: any) => {
@@ -644,7 +356,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           //@ts-ignore
           const cont = inst.contentDocument.host;
           cont.ondrop = async function (e: any) {
-            await handleDrop(e, inst, PSPDFKit);
+            await handleDrop(e, inst, PSPDFKit, currSigneeRef, currUserRef, onPageIndexRef);
           };
 
           // **** Handling Add Signature / Initial UI ****
@@ -764,6 +476,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     setUsers(remainingUsers);
     currSig ? signeeChanged(currSig) : alert("No Signee left");
   };
+
   const RedCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({
     color,
   }) => {
@@ -791,7 +504,6 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   const applyDSign = async () => {
     setIsLoading(true);
-    //let res = {success: false, fileName: ""};
     try {
       console.log("Start signing");
       const doc = await instance.exportPDF();
@@ -824,13 +536,9 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
       setIsLoading(false);
     }
   }
-  const LoadingSpinner = () => (
-    <div className="loading-spinner">
-      <div className="spinner"></div>
-    </div>
-  );
 
   const [selectedSignee, setSelectedSignee] = useState(currSigneeRef.current);
+
   return (
     <div>
       {isLoading && <LoadingSpinner />}
@@ -1107,86 +815,3 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 };
 
 export default dynamic(() => Promise.resolve(SignDemo), { ssr: false });
-
-// Red circle SVG icon as a React component
-
-const DraggableAnnotation = ({
-  className,
-  type,
-  label,
-  onDragStart,
-  onDragEnd,
-  userColor,
-}: {
-  className: string;
-  type: string;
-  label: string;
-  onDragStart: any;
-  onDragEnd: any;
-  userColor: any;
-}) => {
-  const id = `${type}-icon`;
-  let icon = signSVG;
-  switch (type) {
-    case AnnotationTypeEnum.NAME:
-      icon = personSVG;
-      break;
-    case AnnotationTypeEnum.SIGNATURE:
-      icon = signSVG;
-      break;
-    case AnnotationTypeEnum.DATE:
-      icon = dateSVG;
-      break;
-    case AnnotationTypeEnum.INITIAL:
-      icon = initialsSVG;
-      break;
-    default:
-      icon = personSVG;
-      break;
-  }
-
-  return (
-    <div
-      draggable={true}
-      onDragStart={async (e) => await onDragStart(e, type)}
-      onDragEnd={(e) => onDragEnd(e, type)}
-      style={{
-        // display: "flex",
-        margin: "15px 0px",
-        padding: "0rem 0px",
-        cursor: "move",
-      }}
-    >
-      <div className="heading-custom-style">
-        <span
-          style={{
-            border: "1px solid #d7dce4",
-            borderRadius: "5px",
-            marginInlineEnd: "8px",
-            padding: "3px 5px",
-            backgroundColor: userColor
-              ? `rgb(${userColor.r},${userColor.g},${userColor.b})`
-              : `white`,
-          }}
-        >
-          {icon}
-        </span>
-
-        <span style={{ margin: "0px 0.5rem" }}>{label}</span>
-      </div>
-    </div>
-  );
-};
-async function imageToBlob(imageUrl: string): Promise<Blob> {
-  try {
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const blob = await response.blob();
-    return blob;
-  } catch (error) {
-    console.error('Error fetching image:', error);
-    throw error;
-  }
-}
