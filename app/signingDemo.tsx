@@ -17,11 +17,12 @@ import {
   handleAnnotatitonDelete,
   TOOLBAR_ITEMS,
   getAnnotationRenderers,
-  imageToBlob,
   DraggableAnnotation,
   LoadingSpinner,
   handleDrop,
-  randomColor
+  randomColor,
+  applyDSign,
+  createDynamicSelect
 } from "../utils/helpers";
 import dynamic from "next/dynamic";
 
@@ -292,13 +293,24 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
               };
             },
           },
+          customUI:{
+            // Currently, we only support customization of the sidebar.
+            [PSPDFKit.UIElement.Sidebar]: {
+              [PSPDFKit.SidebarMode.SIGNATURES]({ containerNode }:any) {
+                  const textNode = document.createTextNode("Some text appended at the end of the sidebar");
+                  return {
+                    node: textNode
+                  }
+                }
+            }
+          },
           container,
           document: pdfUrl,
           baseUrl: `${window.location.protocol}//${window.location.host}/`,
           toolbarItems: [...TOOLBAR_ITEMS],
           disableTextSelection: false,
           customRenderers: {
-            Annotation:  ({ annotation }: any) =>{  
+            Annotation:  ({ annotation }: any) =>{
               if(digitallySigned && annotation.customData?.type === AnnotationTypeEnum.DS){
                 const isFieldSigned = digitallySigned.signatures.find((sign: any) => sign.signatureFormFQN === annotation.formFieldName);
                 const ele = document.createElement('div');
@@ -336,7 +348,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
           // **** Getting Digital Signature Info ****
           const info = await inst.getSignaturesInfo();
-          if(info.status === "valid") digitallySigned = info;
+          if(info.status === "valid" || info.status === "warning") digitallySigned = info;
           // **** Setting Signature Validation Status ****
           await inst.setViewState((viewState:any) => (
              viewState.set("showSignatureValidationStatus", PSPDFKit.ShowSignatureValidationStatusMode.IF_SIGNED)
@@ -363,25 +375,36 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
           // Track which signature form field was clicked on
           // and wether it was an initial field or not.
-          inst.addEventListener("annotations.press", (event: any) => {
+          inst.addEventListener("annotations.press", async (event: any) => {
             let lastFormFieldClicked = event.annotation;
-
-            let annotationsToLoad;
-            if (
-              lastFormFieldClicked.customData &&
-              lastFormFieldClicked.customData.isInitial === true
-            ) {
-              annotationsToLoad = sessionInitials;
-
-              isCreateInitial = true;
-            } else {
-              annotationsToLoad = sessionSignatures;
-
-              isCreateInitial = false;
-            }
-            inst.setStoredSignatures(
-              PSPDFKit.Immutable.List(annotationsToLoad)
+            const formFields = await inst.getFormFields();
+            const formField = formFields.get(
+              formFields.map((e:any) => e.name).indexOf(lastFormFieldClicked.formFieldName)
             );
+
+            //If it's a signature widget I activate the Form Creator Mode
+            if (
+              lastFormFieldClicked &&
+              formField instanceof PSPDFKit.FormFields.TextFormField
+            ) {
+              const { annotation } = event;
+              // Current signer to this field
+              const signer = annotation.customData.signerID;
+
+              let html = createDynamicSelect(inst, annotation, users, signer);
+
+              
+              //Searching for the Property Expando Control Widget where I'll insert the Select Element
+              const expandoControl = inst.contentDocument.querySelector(
+                ".PSPDFKit-Expando-Control"
+              );
+              const containsSelectUser = inst.contentDocument.querySelector("#userRoles");
+              if (expandoControl && !containsSelectUser) expandoControl.insertAdjacentElement("beforeBegin", html);
+
+              // Save the state of the document in the local storage
+              const storeState = await inst.exportInstantJSON();
+              localStorage.setItem("storeState", JSON.stringify(storeState));
+            }
 
             if (
               !isTextAnnotationMovableRef.current &&
@@ -501,41 +524,6 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   };
 
   const [isLoading, setIsLoading] = useState(false);
-
-  const applyDSign = async () => {
-    setIsLoading(true);
-    try {
-      console.log("Start signing");
-      const doc = await instance.exportPDF();
-      console.log("PDF exported and sending for signing ", doc instanceof ArrayBuffer);
-      const pdfBlob = new Blob([doc], { type: "application/pdf" });
-      const imageBlob = await imageToBlob(`${window.location.protocol}//${window.location.host}/signed/watermark.jpg`);
-      const formData = new FormData();
-      formData.append('file', pdfBlob);
-      formData.append('image', imageBlob);
-      //formData.append('graphicImage', imageBlob)
-      //res = await applyDigitalSignature(formData);
-      const res = await fetch('./api/digitalSigningLite', {
-        method:'POST',
-        body: formData
-      })
-      const container = containerRef.current; // This `useRef` instance will render the PDF.
-      if(container && res.ok){
-        const pdfBlob = await res.blob();
-        const newPdfUrl = URL.createObjectURL(pdfBlob);
-        // Load the new PDF into the viewer
-        setPdfUrl(newPdfUrl);
-      }
-      else{
-        alert("Error in signing");
-      }
-      console.log("Response from signing", res);
-    } catch (error) {
-      console.error('Error caught in catch block:', error);
-    } finally{
-      setIsLoading(false);
-    }
-  }
 
   const [selectedSignee, setSelectedSignee] = useState(currSigneeRef.current);
 
@@ -791,7 +779,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                 <ActionButton
                   label={"Apply Digital Signature"}
                   size="md"
-                  onPress={async function da(){await applyDSign()}}
+                  onPress={async function da(){await applyDSign(instance, containerRef, setIsLoading, setPdfUrl)}}
                   className="custom-button"
                   style={{ margin: "15px 0px 0px 0px" }}
                 />

@@ -268,7 +268,7 @@ export const getAnnotationRenderers = ({ annotation }: any) => {
     //annotation.node = box;
     return ele;
   } else {
-    return null;
+    // return null;
   }
 
   if (annotation.name) {
@@ -912,4 +912,106 @@ function createCustomSignatureNode({ annotation, type }: any) {
   }
 
   return container;
+}
+
+export const applyDSign = async (instance:any, containerRef:any, setIsLoading:any, setPdfUrl:any) => {
+  setIsLoading(true);
+  try {
+    console.log("Start signing");
+    const doc = await instance.exportPDF();
+    console.log("PDF exported and sending for signing ", doc instanceof ArrayBuffer);
+    const pdfBlob = new Blob([doc], { type: "application/pdf" });
+    const imageBlob = await imageToBlob(`${window.location.protocol}//${window.location.host}/signed/watermark.jpg`);
+    const formData = new FormData();
+    formData.append('file', pdfBlob);
+    formData.append('image', imageBlob);
+    //formData.append('graphicImage', imageBlob)
+    //res = await applyDigitalSignature(formData);
+    const res = await fetch('./api/digitalSigningLite', {
+      method:'POST',
+      body: formData
+    })
+    const container = containerRef.current; // This `useRef` instance will render the PDF.
+    if(container && res.ok){
+      const pdfBlob = await res.blob();
+      const newPdfUrl = URL.createObjectURL(pdfBlob);
+      // Load the new PDF into the viewer
+      setPdfUrl(newPdfUrl);
+    }
+    else{
+      alert("Error in signing");
+    }
+    console.log("Response from signing", res);
+  } catch (error) {
+    console.error('Error caught in catch block:', error);
+  } finally{
+    setIsLoading(false);
+  }
+}
+
+export function createDynamicSelect(
+  instance:any,
+  annotation:any,
+  options:any,
+  selectedID = "none"
+) {
+  // Create main container div
+  const mainDiv = document.createElement("div");
+  mainDiv.className = "PSPDFKit-71h65asx9k85mdns4n8j2kt3ag";
+
+  // Create inner divs
+  const innerDiv1 = document.createElement("div");
+  const innerDiv2 = document.createElement("div");
+  innerDiv2.className = "PSPDFKit-4q6rf47rhqhrpm9gdfefxt7qxa";
+
+  // Create label
+  const label = document.createElement("label");
+  label.className = "PSPDFKit-nt12adttbyb52awsgj2pvucxy";
+  label.textContent = "Assign To User: ";
+
+  // Create select element
+  const select = document.createElement("select");
+  select.id = "userRoles";
+  select.className =
+    "PSPDFKit-38cjpvxsadupm25h2qyxa7n5gd PSPDFKit-3yju2u277834cy3gahr2r5pxwa PSPDFKit-Form-Creator-Editor-Form-Field-Name";
+
+  // Add event listener to update the annotation when the select value changes
+  select.addEventListener("change", async (event:any) => {
+    const newSelectedID = event.target.value;
+    console.log("Selected ID:", newSelectedID);
+    // Update the annotation with the new signer
+    
+    const customData = annotation.customData
+    customData.signerID = newSelectedID;
+    const updatedAnnotation = annotation.set("customData", customData);
+    instance.update(updatedAnnotation).then((updated:any) => {
+      console.log("Updated annotation", updated);
+    });
+
+    // Save the state of the document in the local storage
+    const storeState = await instance.exportInstantJSON();
+    localStorage.setItem("storeState", JSON.stringify(storeState));
+  });
+
+  // Create options dynamically
+  const isIDInOptions =
+    options.filter((option:any) => option.id === selectedID).length > 0;
+  options.forEach((thisOption:any) => {
+    const option = document.createElement("option");
+    option.value = thisOption.id;
+    option.textContent = thisOption.name;
+    option.selected = isIDInOptions
+      ? selectedID === thisOption.id
+      : thisOption.isAdmin;
+    select.appendChild(option);
+  });
+
+  // Assemble the elements
+  label.appendChild(select);
+  innerDiv2.appendChild(label);
+  innerDiv1.appendChild(innerDiv2);
+  mainDiv.appendChild(innerDiv1);
+
+  // Return the main container
+  return mainDiv;
 }

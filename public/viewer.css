@@ -1,8 +1,8 @@
 /* PSPDFKit Overrides */
-.PSPDFKit-Form-Creator-Toolbar,
+/* .PSPDFKit-Form-Creator-Toolbar,
 .PSPDFKit-Form-Creator-Popover {
   display: none !important;
-}
+} */
 
 /* .PSPDFKit-Annotation-Widget-Signature > figure,
 .PSPDFKit-Annotation-Widget-Signature-Badge {
