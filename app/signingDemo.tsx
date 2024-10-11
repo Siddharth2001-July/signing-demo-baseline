@@ -499,7 +499,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
           // **** Getting Digital Signature Info ****
           const info = await inst.getSignaturesInfo();
-          if(info.status === "valid") digitallySigned = info;
+          if(info.status) digitallySigned = info;
           // **** Setting Signature Validation Status ****
           await inst.setViewState((viewState:any) => (
              viewState.set("showSignatureValidationStatus", PSPDFKit.ShowSignatureValidationStatusMode.IF_SIGNED)
