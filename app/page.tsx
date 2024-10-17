@@ -5,7 +5,7 @@ import { ChatDialog } from "@baseline-ui/recipes";
 import { AIMessage } from "../utils/types";
 import {askAI} from "./api/askAI";
 import dynamic from "next/dynamic";
-import { chatBotSVG } from "@/utils/helpers";
+import { chatBotSVG } from "@/utils/icons";
 
 // Dynamic imports for components that are not needed during SSR
 const DynamicSignComp = dynamic(() => import("./signingDemo"), { ssr: false });

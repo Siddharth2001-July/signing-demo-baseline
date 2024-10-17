@@ -1,8 +1,15 @@
 /* PSPDFKit Overrides */
-/* .PSPDFKit-Form-Creator-Toolbar,
-.PSPDFKit-Form-Creator-Popover {
+
+/* .PSPDFKit-Form-Creator-Popover, */
+.PSPDFKit-Form-Creator-Toolbar {
   display: none !important;
-} */
+}
+.PSPDFKit-Form-Creator-Editor-Delete{
+  color: red;
+}
+.PSPDFKit-Form-Creator-Editor-Duplicate{
+  color: #4636e3
+}
 
 /* .PSPDFKit-Annotation-Widget-Signature > figure,
 .PSPDFKit-Annotation-Widget-Signature-Badge {

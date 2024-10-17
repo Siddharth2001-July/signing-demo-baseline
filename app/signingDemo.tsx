@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { AnnotationTypeEnum, User } from "../utils/types";
+import { AnnotationTypeEnum, User } from "@/utils/types";
 
 const ActionButton = dynamic(
   () => import("@baseline-ui/core").then((mod) => mod.ActionButton),
@@ -17,13 +17,16 @@ import {
   handleAnnotatitonDelete,
   TOOLBAR_ITEMS,
   getAnnotationRenderers,
-  DraggableAnnotation,
   LoadingSpinner,
   handleDrop,
   randomColor,
   applyDSign,
-  createDynamicSelect
+  createDynamicSelect,
+  onPressDuplicate,
 } from "../utils/helpers";
+
+import  {DraggableAnnotation, createDragImage} from "./draggableAnnotations";
+
 import dynamic from "next/dynamic";
 
 /**
@@ -44,6 +47,8 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   // State to store the users. Master is the default user for now who can add fields in the doc.
   const [users, setUsers] = useState<User[]>(allUsers);
+  const usersRef = useRef(users);
+  usersRef.current = users;
 
   const [isVisible, setIsVisible] = useState(
     user.role == "Editor" ? true : false
@@ -88,6 +93,8 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   const [sessionSignatures, setSessionSignatures] = useState<any>([]);
   const [sessionInitials, setSessionInitials] = useState<any>([]);
 
+  
+
   function onDragStart(event: React.DragEvent<HTMLDivElement>, type: string) {
     const instantId = "PSPDFKit.generateInstantId()";
     let data =
@@ -99,11 +106,22 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
       "%" +
       type;
 
+
+    // Create custom drag image
+    const dragImage = createDragImage(type, currSignee.color);
+    instance.contentDocument.appendChild(dragImage);
+
+    // Set the custom drag image
+    event.dataTransfer.setDragImage(dragImage, dragImage.offsetWidth / 2, dragImage.offsetHeight / 2);
+
+    // Remove the drag image element after the drag ends
+    event.currentTarget.addEventListener('dragend', () => {
+      if(instance.contentDocument.contains(dragImage))
+        instance.contentDocument.removeChild(dragImage);
+    });
+
     (event.target as HTMLDivElement).style.opacity = "0.8";
-    const img = document.getElementById(`${type}-icon`);
-    if (img) {
-      event.dataTransfer.setDragImage(img, 10, 10);
-    }
+    
     event.dataTransfer.setData("text/plain", data);
     event.dataTransfer.dropEffect = "move";
   }
@@ -293,17 +311,6 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
               };
             },
           },
-          customUI:{
-            // Currently, we only support customization of the sidebar.
-            [PSPDFKit.UIElement.Sidebar]: {
-              [PSPDFKit.SidebarMode.SIGNATURES]({ containerNode }:any) {
-                  const textNode = document.createTextNode("Some text appended at the end of the sidebar");
-                  return {
-                    node: textNode
-                  }
-                }
-            }
-          },
           container,
           document: pdfUrl,
           baseUrl: `${window.location.protocol}//${window.location.host}/`,
@@ -382,28 +389,36 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
               formFields.map((e:any) => e.name).indexOf(lastFormFieldClicked.formFieldName)
             );
 
-            //If it's a signature widget I activate the Form Creator Mode
+            //If it's a text widget I activate the Form Creator Mode
             if (
               lastFormFieldClicked &&
-              formField instanceof PSPDFKit.FormFields.TextFormField
+              (formField instanceof PSPDFKit.FormFields.TextFormField || formField instanceof PSPDFKit.FormFields.RadioButtonFormField)
             ) {
               const { annotation } = event;
               // Current signer to this field
               const signer = annotation.customData.signerID;
-
-              let html = createDynamicSelect(inst, annotation, users, signer);
-
-              
+              console.log("Signer: ", signer);
+              let selectUserHTML = createDynamicSelect(inst, annotation, usersRef.current, signer);
               //Searching for the Property Expando Control Widget where I'll insert the Select Element
               const expandoControl = inst.contentDocument.querySelector(
                 ".PSPDFKit-Expando-Control"
               );
               const containsSelectUser = inst.contentDocument.querySelector("#userRoles");
-              if (expandoControl && !containsSelectUser) expandoControl.insertAdjacentElement("beforeBegin", html);
+              if (expandoControl && !containsSelectUser) expandoControl.insertAdjacentElement("beforeBegin", selectUserHTML);
 
-              // Save the state of the document in the local storage
-              const storeState = await inst.exportInstantJSON();
-              localStorage.setItem("storeState", JSON.stringify(storeState));
+              const popupFooterDiv = inst.contentDocument.querySelector(".PSPDFKit-2wtzexryxvzwm2ffu1e1vh391u");
+              if(popupFooterDiv) {
+                const duplicateButtonHTML = document.createElement("button");
+                duplicateButtonHTML.innerHTML = "Duplicate";
+                duplicateButtonHTML.className = "PSPDFKit-239sjtxdzvwfjbe3ass6aqfp77 PSPDFKit-7kqbgjh4u33aw27zwkrtu57p2e PSPDFKit-68w1xn1tjp178f46bwdhvjg7f1 .PSPDFKit-Form-Creator-Editor-Duplicate";
+                duplicateButtonHTML.onclick = async () =>{
+                  await onPressDuplicate(annotation, PSPDFKit, trackInst);
+                }
+
+                const popupHaveduplicateButton = document.body.querySelector(".PSPDFKit-Form-Creator-Editor-Duplicate");
+                if(!popupHaveduplicateButton)
+                  popupFooterDiv.appendChild(duplicateButtonHTML);
+              }
             }
 
             if (
