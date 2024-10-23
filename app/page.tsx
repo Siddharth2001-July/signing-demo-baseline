@@ -8,17 +8,13 @@ import dynamic from "next/dynamic";
 import { chatBotSVG } from "@/utils/icons";
 
 // Dynamic imports for components that are not needed during SSR
-const DynamicSignComp = dynamic(() => import("./signingDemo"), { ssr: false });
+const DynamicSignComp = dynamic(() => import("./components/PDFViewer/signingDemo"), { ssr: false });
 const I18nProvider = dynamic(
   () => import("@baseline-ui/core").then((mod) => mod.I18nProvider),
   { ssr: false }
 );
 const ThemeProvider = dynamic(
   () => import("@baseline-ui/core").then((mod) => mod.ThemeProvider),
-  { ssr: false }
-);
-const Drawer = dynamic(
-  () => import("@baseline-ui/core").then((mod) => mod.Drawer),
   { ssr: false }
 );
 
@@ -72,23 +68,6 @@ const App: React.FC = () => {
     <ThemeProvider theme={"system"}>
       <I18nProvider locale="en-US">
         <DynamicSignComp allUsers={allUsers} user={currUser} />
-        {/* <Drawer
-          title="Ask AI (Beta)"
-          style={{
-            position: "absolute",
-            bottom: 5,
-            right: 5,
-            border: "0.5px solid grey",
-            borderRadius: "10px",
-            width: "35vh",
-            padding: "10px",
-            boxShadow: "1px 1px 12px -8px black inset",
-          }}
-          onCloseRequest={() => {
-            //alert("Closing Chat");
-            setIsChatOpen(!isChatOpen);
-          }}
-        > */}
         <div
           style={{
             //overflow: "auto",
@@ -182,14 +161,10 @@ const App: React.FC = () => {
                     ]);
                   }
                 });
-                // const inputBox = document.querySelector(`[aria-label="Editing Area"]`) as HTMLInputElement;
-                // if (inputBox) inputBox.value = '';
               }}
             />
           )}
         </div>
-
-        {/* </Drawer> */}
       </I18nProvider>
     </ThemeProvider>
   );
