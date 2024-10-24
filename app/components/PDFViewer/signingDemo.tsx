@@ -2,18 +2,13 @@
 import { useEffect, useRef, useState } from "react";
 import { AnnotationTypeEnum as importedAnnotationTypeEnum, User } from "@/utils/types";
 const AnnotationTypeEnum = importedAnnotationTypeEnum;
-import {
-  handleAnnotatitonCreation,
-  handleAnnotatitonDelete,
-  TOOLBAR_ITEMS,
-  LoadingSpinner,
-  randomColor,
-  applyDSign
-} from "../../../utils/helpers";
-import { userChange, customizeUIForInitials, onPressDuplicate, duplicateAnnotationTooltipCallback } from "./helpers";
+import { handleAnnotatitonCreation, handleAnnotatitonDelete, TOOLBAR_ITEMS, LoadingSpinner, randomColor, applyDSign } from "../../../utils/helpers";
+import { userChange, onPressDuplicate, duplicateAnnotationTooltipCallback } from "./helpers";
+import customizeUIForInitials from "./utils/customizeUIForInitials";
 import handleDrop from "./utils/dropAnnotations";
 import createDynamicSelect from "./utils/popupUserSelect";
 import getAnnotationRenderers from "./utils/customAnnotationRenderer";
+import addSignee from "./utils/addSignee";
 import dynamic from "next/dynamic";
 import SidePanel from "../sidePanel/sidePanel";
 import { onDragStart } from "../sidePanel/helpers";
@@ -25,10 +20,7 @@ import { onDragStart } from "../sidePanel/helpers";
  * @param user - The currently logged-in user.
  * @returns The rendered SignDemo component.
  */
-const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
-  allUsers,
-  user,
-}) => {
+const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({ allUsers, user }) => {
   const [PSPDFKit, setPSPDFKit] = useState<any>(null);
   //export const SignDemo: any = ({ allUsers, user }: { allUsers: User[], user: User }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -74,9 +66,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
   // For Custom signature / initial field appearance
   const mySignatureIdsRef = useRef([]);
-  const [signatureAnnotationIds, setSignatureAnnotationIds] = useState<
-    string[]
-  >([]);
+  const [signatureAnnotationIds, setSignatureAnnotationIds] = useState<string[]>([]);
 
   // For Custom Add Signature / Intitial field appearance
   const [sessionSignatures, setSessionSignatures] = useState<any>([]);
@@ -125,36 +115,6 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
     }
   };
 
-  const addSignee = () => {
-    if (typeof window !== "undefined") {
-      const name = window.prompt("Enter signee's name:");
-      const email = window.prompt("Enter signee's email:");
-
-      let id = Math.floor(Math.random() * 1000000);
-      while (id && users.find((user) => user.id === id)) {
-        console.log("Non unique" + id);
-        id = Math.floor(Math.random() * 1000000);
-      }
-      console.log("Unique id" + id);
-
-      if (name && email) {
-        setUsers((prevState) => [
-          ...prevState,
-          {
-            // You can use your own logic to generate the id
-            id: id,
-            name: name,
-            email: email,
-            color: randomColor(PSPDFKit, users),
-            role: "signee",
-          } as User,
-        ]);
-      } else {
-        alert("Please enter both name and email.");
-      }
-    }
-  };
-
   // Tracking whether add Signature/Initial UI
   let isCreateInitial: boolean = false;
   var trackInst:any = null;
@@ -172,9 +132,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
         if (PSPDFKit) {
           PSPDFKit.unload(container);
         }
-        const {
-          UI: { createBlock, Recipes, Interfaces, Core },
-        } = PSPDFKit;
+        const {UI: { createBlock, Recipes, Interfaces, Core }} = PSPDFKit;
         PSPDFKit.load({
           licenseKey: process.env.NEXT_PUBLIC_LICENSE_KEY as string,
           // @ts-ignore
@@ -228,12 +186,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
           // **** Setting Page Index ****
 
-          inst.addEventListener(
-            "viewState.currentPageIndex.change",
-            (page: any) => {
-              setOnPageIndex(page);
-            }
-          );
+          inst.addEventListener("viewState.currentPageIndex.change", (page: any) => {setOnPageIndex(page)});
 
           // **** Handle Drop event ****
 
@@ -247,21 +200,17 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
 
           // Track which signature form field was clicked on
           // and wether it was an initial field or not.
-          inst.addEventListener("annotations.press", (event: any) => {
+          inst.addEventListener("annotations.press", 
+            (event: any) => {
             let lastFormFieldClicked = event.annotation;
 
             // Load the annotations for the current user and check if it's an initial or signature field
             let annotationsToLoad;
-            if (
-              lastFormFieldClicked.customData &&
-              lastFormFieldClicked.customData.isInitial === true
-            ) {
+            if (lastFormFieldClicked.customData && lastFormFieldClicked.customData.isInitial === true) {
               annotationsToLoad = sessionInitials;
-
               isCreateInitial = true;
             } else {
               annotationsToLoad = sessionSignatures;
-
               isCreateInitial = false;
             }
 
@@ -297,13 +246,10 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
                   if(!popupHaveduplicateButton)
                     popupFooterDiv.appendChild(duplicateButtonHTML);
                 }
-              }, 10);
+              }, 1);
             }
 
-            if (
-              !isTextAnnotationMovableRef.current &&
-              event.annotation instanceof PSPDFKit.Annotations.TextAnnotation
-            ) {
+            if (!isTextAnnotationMovableRef.current && event.annotation instanceof PSPDFKit.Annotations.TextAnnotation) {
               //@ts-ignore
               event.preventDefault();
             }
@@ -331,13 +277,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             "annotations.load",
             async function (loadedAnnotations: any) {
               for await (const annotation of loadedAnnotations) {
-                await handleAnnotatitonCreation(
-                  inst,
-                  annotation,
-                  mySignatureIdsRef,
-                  setSignatureAnnotationIds,
-                  currUser.email
-                );
+                await handleAnnotatitonCreation(inst,annotation,mySignatureIdsRef,setSignatureAnnotationIds,currUser.email);
               }
             }
           );
@@ -346,13 +286,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             "annotations.create",
             async function (createdAnnotations: any) {
               const annotation = createdAnnotations.get(0);
-              await handleAnnotatitonCreation(
-                inst,
-                annotation,
-                mySignatureIdsRef,
-                setSignatureAnnotationIds,
-                currUser.email
-              );
+              await handleAnnotatitonCreation(inst,annotation,mySignatureIdsRef,setSignatureAnnotationIds,currUser.email);
             }
           );
 
@@ -361,19 +295,12 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             async (deletedAnnotations: any) => {
               const annotation = deletedAnnotations.get(0);
               await handleAnnotatitonDelete(inst, annotation, currUser?.email);
-              const updatedAnnotationIds = mySignatureIdsRef.current.filter(
-                (id) => id !== annotation.id
-              );
+              const updatedAnnotationIds = mySignatureIdsRef.current.filter((id) => id !== annotation.id);
               setSignatureAnnotationIds(updatedAnnotationIds);
               mySignatureIdsRef.current = updatedAnnotationIds;
             }
           );
-          inst.setViewState((viewState: any) =>
-            viewState.set(
-              "interactionMode",
-              PSPDFKit.InteractionMode.FORM_CREATOR
-            )
-          );
+          inst.setViewState((viewState: any) => viewState.set("interactionMode",PSPDFKit.InteractionMode.FORM_CREATOR));
           setIsTextAnnotationMovable(true);
         });
       }
@@ -401,15 +328,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
   return (
     <div>
       {isLoading && <LoadingSpinner />}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "top",
-          position: "fixed",
-          width: "100%",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "top", position: "fixed", width: "100%" }}>
         <SidePanel
           users={users}
           currUser={currUser}
@@ -420,7 +339,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
           selectedSignee={selectedSignee}
           signeeChanged={signeeChanged}
           deleteUser={deleteUser}
-          addSignee={addSignee}
+          addSignee={()=>addSignee(setUsers, PSPDFKit, users)}
           onDragStart={(event: React.DragEvent<HTMLDivElement>, type: string) => onDragStart(event, type, currSignee, instance)}
           onDragEnd={onDragEnd}
           applyDSign={applyDSign}
