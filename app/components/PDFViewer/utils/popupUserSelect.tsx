@@ -4,10 +4,6 @@ function createDynamicSelect(
   options: any,
   selectedID = "none"
 ) {
-  console.log(`instance : ${instance}`);
-  console.log(`annotation : ${annotation}`);
-  console.log(`options : ${options}`);
-  console.log(`selectedID : ${selectedID}`);
 
   // Create main container div
   const mainDiv = document.createElement("div");
