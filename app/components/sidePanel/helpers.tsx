@@ -1,4 +1,4 @@
-import { createDragImage } from "./draggableAnnotations";
+import { createDragImage } from "./draggableAnnotations/draggableAnnotations";
 
 export function onDragStart(event: React.DragEvent<HTMLDivElement>, type: string, currSignee:any, instance:any) {
     const instantId = "PSPDFKit.generateInstantId()";

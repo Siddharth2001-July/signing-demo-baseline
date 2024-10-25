@@ -1,0 +1,37 @@
+.draggable-annotation {
+    margin: 15px 0px;
+    padding: 0rem 0px;
+    cursor: move;
+  }
+  
+  .heading-custom-style {
+    display: flex;
+    align-items: center;
+  }
+  
+  .icon-wrapper {
+    border: 1px solid #d7dce4;
+    border-radius: 5px;
+    margin-inline-end: 8px;
+    padding: 3px 5px;
+  }
+  
+  .label {
+    margin: 0px 0.5rem;
+  }
+  
+  .drag-image {
+    width: 100px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  
+  .drag-image.white-background {
+    background: #ffffff;
+    color: #000000;
+  }

@@ -1,0 +1,41 @@
+.side-panel {
+    width: 256px;
+    background: #ffffff;
+    border-right: 1px solid #F0F3F9;
+    overflow-y: auto;
+    height: 90vh;
+    border-top: 1px solid #D7DCE4;
+  }
+  
+  .section {
+    padding: 16px;
+    border-bottom: 1px solid #D7DCE4;
+  }
+  
+  .section-title {
+    font-family: Inter;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 20px;
+    text-transform: uppercase;
+  }
+  
+  .section-description {
+    font-family: Inter;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .fields-section {
+    padding: 25px 15px;
+  }
+  
+  .add-new-button {
+    margin: 15px 0px 0px 0px;
+  }
+  
+  .apply-signature-button {
+    margin: 15px 0px 0px 0px;
+  }

@@ -1,7 +1,8 @@
 import React from "react";
-import {DraggableAnnotation} from "./draggableAnnotations"; // Adjust the import path as needed
+import {DraggableAnnotation} from "./draggableAnnotations/draggableAnnotations"; // Adjust the import path as needed
 import { AnnotationTypeEnum, User } from "@/utils/types"; // Adjust the import path as needed
 import dynamic from "next/dynamic";
+import "./SidePanel.css";
 
 const Select = dynamic(
   () => import("@baseline-ui/core").then((mod) => mod.Select),
@@ -32,37 +33,12 @@ const SidePanel = ({
   setPdfUrl,
 }:any) => {
   return (
-    <div
-      style={{
-        width: "256px",
-        background: "#ffffff",
-        borderRight: "1px solid #F0F3F9",
-        overflowY: "auto",
-        height: "90vh",
-        borderTop: "1px solid #D7DCE4",
-      }}
-    >
-      <div style={{ padding: "16px", borderBottom: "1px solid #D7DCE4" }}>
-        <h3
-          style={{
-            fontFamily: "Inter",
-            fontSize: "12px",
-            fontWeight: "600",
-            lineHeight: "20px",
-            textTransform: "uppercase",
-          }}
-        >
+    <div className="side-panel">
+      <div className="section user-section">
+        <h3 className="section-title">
           user
         </h3>
-        <div
-          style={{
-            fontFamily: "Inter",
-            fontSize: "10px",
-            fontWeight: "400",
-            lineHeight: "14px",
-            marginBottom: "10px",
-          }}
-        >
+        <div  className="section-description">
           Choose &apos;Admin&apos; to edit and prepare the document for signing,
           or select a user to sign the document as that user.
         </div>
@@ -94,27 +70,11 @@ const SidePanel = ({
       </div>
       {isVisible && (
         <>
-          <div style={{ padding: "16px", borderBottom: "1px solid #D7DCE4" }}>
-            <h3
-              style={{
-                fontFamily: "Inter",
-                fontSize: "12px",
-                fontWeight: "600",
-                lineHeight: "20px",
-                textTransform: "uppercase",
-              }}
-            >
+          <div className="section signers-section">
+            <h3 className="section-title">
               Signers
             </h3>
-            <div
-              style={{
-                fontFamily: "Inter",
-                fontSize: "10px",
-                fontWeight: "400",
-                lineHeight: "14px",
-                marginBottom: "10px",
-              }}
-            >
+            <div className="section-description">
               Select the signer to assign fields to.
             </div>
             <div>
@@ -170,27 +130,11 @@ const SidePanel = ({
               style={{ margin: "15px 0px 0px 0px" }}
             />
           </div>
-          <div style={{ padding: "25px 15px" }}>
-            <h3
-              style={{
-                fontFamily: "Inter",
-                fontSize: "12px",
-                fontWeight: "600",
-                lineHeight: "20px",
-                textTransform: "uppercase",
-              }}
-            >
+          <div className="section fields-section">
+            <h3 className="section-title">
               Add fields
             </h3>
-            <div
-              style={{
-                fontFamily: "Inter",
-                fontSize: "10px",
-                fontWeight: "400",
-                lineHeight: "14px",
-                marginBottom: "10px",
-              }}
-            >
+            <div className="section-description">
               Drag & drop fields on the document
             </div>
             <DraggableAnnotation
