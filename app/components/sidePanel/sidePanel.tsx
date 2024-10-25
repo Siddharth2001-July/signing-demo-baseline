@@ -2,7 +2,7 @@ import React from "react";
 import {DraggableAnnotation} from "./draggableAnnotations/draggableAnnotations"; // Adjust the import path as needed
 import { AnnotationTypeEnum, User } from "@/utils/types"; // Adjust the import path as needed
 import dynamic from "next/dynamic";
-import "./SidePanel.css";
+import "./sidePanel.css";
 
 const Select = dynamic(
   () => import("@baseline-ui/core").then((mod) => mod.Select),

@@ -1,6 +1,6 @@
 import { AnnotationTypeEnum} from "@/utils/types";
 import { signSVG, initialsSVG, personSVG, dateSVG } from "@/utils/icons";
-import "./DraggableAnnotations.css";
+import "./draggableAnnotations.css";
 
 export const DraggableAnnotation = ({
   className,
