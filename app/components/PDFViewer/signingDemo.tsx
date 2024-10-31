@@ -215,8 +215,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({ allUsers, user }
 
             //If it's a text widget show duplicate in popup
             if (
-              lastFormFieldClicked &&
-              ( AnnotationTypeEnum.SIGNATURE == lastFormFieldClicked.customData.type || lastFormFieldClicked.customData.type == AnnotationTypeEnum.INITIAL)
+              lastFormFieldClicked
             ) {
               const { annotation } = event;
               // Current signer to this field
@@ -229,7 +228,10 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({ allUsers, user }
                 );
                 const containsSelectUser = inst.contentDocument.querySelector("#USER_SELECT_MAIN_DIV");
                 if(containsSelectUser) containsSelectUser.remove();
-                if (expandoControl) {
+                if (expandoControl
+                  && false
+                  //&& ( AnnotationTypeEnum.SIGNATURE == lastFormFieldClicked.customData.type || lastFormFieldClicked.customData.type == AnnotationTypeEnum.INITIAL)
+                ) {
                   let selectUserHTML = createDynamicSelect(inst, annotation, usersRef.current, signer);
                   expandoControl.insertAdjacentElement("beforeBegin", selectUserHTML)
                 };
@@ -240,7 +242,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({ allUsers, user }
                   existingDuplicateButton.remove();
                 }
                 // Add duplicate button if it doesn't exist
-                if(popupFooterDiv) {
+                if(popupFooterDiv && AnnotationTypeEnum.TextField == lastFormFieldClicked.customData.type) {
                   const duplicateButtonHTML = document.createElement("button");
                   duplicateButtonHTML.innerHTML = "Duplicate";
                   duplicateButtonHTML.className = "PSPDFKit-239sjtxdzvwfjbe3ass6aqfp77 PSPDFKit-7kqbgjh4u33aw27zwkrtu57p2e PSPDFKit-68w1xn1tjp178f46bwdhvjg7f1 PSPDFKit-Form-Creator-Editor-Duplicate "+annotation.Id;

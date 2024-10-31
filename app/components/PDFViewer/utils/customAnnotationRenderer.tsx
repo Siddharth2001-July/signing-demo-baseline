@@ -1,6 +1,6 @@
 import { AnnotationTypeEnum } from "@/utils/types";
 
-const renderConfigurations: any = {};
+let renderConfigurations: any = {};
 
 const getAnnotationRenderers = ({ annotation }: any) => {
   if (
@@ -21,17 +21,12 @@ const getAnnotationRenderers = ({ annotation }: any) => {
       "--box-height",
       annotation.boundingBox.height / 16 + "rem"
     );
-    //box.style.margin = '0px';
     box.id = annotation.id;
 
     // Append the annotation to the box
-    //box.appendChild(annotation.node);
     let ele = { node: box, append: true };
     // Replace the annotation with the box
-    //annotation.node = box;
     return ele;
-  } else {
-    // return null;
   }
 
   if (annotation.name) {
@@ -39,7 +34,7 @@ const getAnnotationRenderers = ({ annotation }: any) => {
       return renderConfigurations[annotation.id];
     }
 
-    const wRender = {
+    renderConfigurations[annotation.id] = {
       node: createCustomSignatureNode({
         annotation,
         type: annotation.customData?.type,
@@ -47,7 +42,7 @@ const getAnnotationRenderers = ({ annotation }: any) => {
       append: true,
     };
 
-    return wRender || null;
+    return renderConfigurations[annotation.id] || null;
   }
 };
 
