@@ -39,7 +39,7 @@ const getAnnotationRenderers = ({ annotation }: any) => {
       return renderConfigurations[annotation.id];
     }
 
-    renderConfigurations[annotation.id] = {
+    const wRender = {
       node: createCustomSignatureNode({
         annotation,
         type: annotation.customData?.type,
@@ -47,7 +47,7 @@ const getAnnotationRenderers = ({ annotation }: any) => {
       append: true,
     };
 
-    return renderConfigurations[annotation.id] || null;
+    return wRender || null;
   }
 };
 

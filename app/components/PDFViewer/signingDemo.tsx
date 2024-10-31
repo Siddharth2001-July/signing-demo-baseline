@@ -216,7 +216,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({ allUsers, user }
             //If it's a text widget show duplicate in popup
             if (
               lastFormFieldClicked &&
-              ( AnnotationTypeEnum.TextField == lastFormFieldClicked.customData.type || lastFormFieldClicked.customData.type == AnnotationTypeEnum.RadioButton)
+              ( AnnotationTypeEnum.SIGNATURE == lastFormFieldClicked.customData.type || lastFormFieldClicked.customData.type == AnnotationTypeEnum.INITIAL)
             ) {
               const { annotation } = event;
               // Current signer to this field
@@ -227,23 +227,27 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({ allUsers, user }
                 const expandoControl = inst.contentDocument.querySelector(
                   ".PSPDFKit-Expando-Control"
                 );
-                const containsSelectUser = inst.contentDocument.querySelector("#userRoles");
-                if (expandoControl && !containsSelectUser) {
+                const containsSelectUser = inst.contentDocument.querySelector("#USER_SELECT_MAIN_DIV");
+                if(containsSelectUser) containsSelectUser.remove();
+                if (expandoControl) {
                   let selectUserHTML = createDynamicSelect(inst, annotation, usersRef.current, signer);
                   expandoControl.insertAdjacentElement("beforeBegin", selectUserHTML)
                 };
                 const popupFooterDiv = inst.contentDocument.querySelector(".PSPDFKit-2wtzexryxvzwm2ffu1e1vh391u");
+                const existingDuplicateButton = inst.contentDocument.querySelector(`.PSPDFKit-Form-Creator-Editor-Duplicate`);
+                // Remove existing duplicate button if it exists
+                if (existingDuplicateButton) {
+                  existingDuplicateButton.remove();
+                }
+                // Add duplicate button if it doesn't exist
                 if(popupFooterDiv) {
                   const duplicateButtonHTML = document.createElement("button");
                   duplicateButtonHTML.innerHTML = "Duplicate";
-                  duplicateButtonHTML.className = "PSPDFKit-239sjtxdzvwfjbe3ass6aqfp77 PSPDFKit-7kqbgjh4u33aw27zwkrtu57p2e PSPDFKit-68w1xn1tjp178f46bwdhvjg7f1 .PSPDFKit-Form-Creator-Editor-Duplicate";
+                  duplicateButtonHTML.className = "PSPDFKit-239sjtxdzvwfjbe3ass6aqfp77 PSPDFKit-7kqbgjh4u33aw27zwkrtu57p2e PSPDFKit-68w1xn1tjp178f46bwdhvjg7f1 PSPDFKit-Form-Creator-Editor-Duplicate "+annotation.Id;
                   duplicateButtonHTML.onclick = async () =>{
                     await onPressDuplicate(annotation, PSPDFKit, trackInst);
                   }
-
-                  const popupHaveduplicateButton = document.body.querySelector(".PSPDFKit-Form-Creator-Editor-Duplicate");
-                  if(!popupHaveduplicateButton)
-                    popupFooterDiv.appendChild(duplicateButtonHTML);
+                  popupFooterDiv.appendChild(duplicateButtonHTML);
                 }
               }, 1);
             }

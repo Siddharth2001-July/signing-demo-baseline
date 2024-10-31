@@ -131,7 +131,6 @@ const handleDrop = async (
       name: instantId,
       annotationIds: new PSPDFKit.Immutable.List([
         radioWidget1.id,
-        // radioWidget2.id
       ]),
       options: new PSPDFKit.Immutable.List([
         new PSPDFKit.FormOption({
@@ -186,7 +185,6 @@ const handleDrop = async (
         type: annotationType,
         signerColor: signee.color,
       },
-      backgroundColor: signee.color,
     });
     const textField = new PSPDFKit.FormFields.TextFormField({
       annotationIds: new PSPDFKit.Immutable.List([textBoxWidget.id]),

@@ -8,6 +8,7 @@ function createDynamicSelect(
   // Create main container div
   const mainDiv = document.createElement("div");
   mainDiv.className = "PSPDFKit-71h65asx9k85mdns4n8j2kt3ag";
+  mainDiv.id = "USER_SELECT_MAIN_DIV";
 
   // Create inner divs
   const innerDiv1 = document.createElement("div");
@@ -31,13 +32,13 @@ function createDynamicSelect(
     // Update the annotation with the new signer
 
     const customData = annotation.customData;
-    customData.signerID = newSelectedID;
     const selectedObj = options.find(
       (option: any) => option.id == newSelectedID
     );
-    const updatedAnnotation = annotation
-      .set("customData", customData)
-      .set("backgroundColor", selectedObj.color);
+    customData.signerID = newSelectedID;
+    customData.signerColor = selectedObj.color;
+
+    const updatedAnnotation = annotation.set("customData", customData);
 
     instance.update(updatedAnnotation).then((updated: any) => {});
   });

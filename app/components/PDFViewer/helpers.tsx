@@ -15,7 +15,8 @@ export const userChange = async (user: any, PSPDFKit: any, instance:any, setIsVi
           ann.forEach((annotation: any) => {
             if (
               annotation.customData &&
-              annotation.customData.signerID == user.id
+              annotation.customData.signerID == user.id 
+              //&& (annotation.customData.type === AnnotationTypeEnum.SIGNATURE || annotation.customData.type === AnnotationTypeEnum.INITIAL)
             ) {
               annotations.push(annotation.id);
             }
