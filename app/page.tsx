@@ -56,10 +56,6 @@ const App: React.FC = () => {
         user.color = PSPDFKit.Color.LIGHT_BLUE;
       });
     })();
-    setTimeout(() => {
-      //console.log("Setting current user to Signer");
-      //setCurrUser(allUsers[1]);
-    }, 0);
   }, []);
 
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -70,7 +66,6 @@ const App: React.FC = () => {
         <DynamicSignComp allUsers={allUsers} user={currUser} />
         <div
           style={{
-            //overflow: "auto",
             position: "absolute",
             bottom: 10,
             right: 10,
@@ -121,11 +116,8 @@ const App: React.FC = () => {
               //@ts-ignore
               messages={messages}
               onInputChanged={async function Da(inp) {
-                //console.log("Input Changed : ",inp);
               }}
               onMessageSubmit={async function Da(inp) {
-                console.log("Message Submitted : ", inp);
-
                 const newMessage = {
                   type: "PLAIN",
                   text: inp,

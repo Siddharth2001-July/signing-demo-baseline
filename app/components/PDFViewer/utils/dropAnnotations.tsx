@@ -113,7 +113,6 @@ const handleDrop = async (
       readOnly: signee.id != user.id,
     });
     const created = await inst.create([widget, formField]);
-    console.log("Digital Signature created", created);
   } else if (annotationType === AnnotationTypeEnum.RadioButton) {
     const radioWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
       id: instantId,
@@ -128,24 +127,6 @@ const handleDrop = async (
         signerColor: signee.color,
       },
     });
-    // const radioWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
-    //   id: PSPDFKit.generateInstantId(),
-    //   pageIndex: pageIndex,
-    //   formFieldName: "MyFormField",
-    //   boundingBox: new PSPDFKit.Geometry.Rect({
-    //     left: pageRect.left + 30,
-    //     top: pageRect.top,
-    //     width: pageRect.width,
-    //     height: pageRect.height,
-    //   }),
-    //   customData: {
-    //     createdBy: user.id,
-    //     signerID: signee.id,
-    //     signerEmail: email,
-    //     type: annotationType,
-    //     signerColor: signee.color,
-    //   },
-    // });
     const formField = new PSPDFKit.FormFields.RadioButtonFormField({
       name: instantId,
       annotationIds: new PSPDFKit.Immutable.List([
@@ -157,16 +138,11 @@ const handleDrop = async (
           label: "Option 1",
           value: "1",
         }),
-        // new PSPDFKit.FormOption({
-        //   label: "Option 2",
-        //   value: "2"
-        // })
       ]),
       defaultValue: "1",
     });
     await inst.create([
       radioWidget1,
-      //radioWidget2,
       formField,
     ]);
   } else if (annotationType === AnnotationTypeEnum.CheckBox) {
@@ -220,8 +196,6 @@ const handleDrop = async (
       maxLength: 100,
       multiLine: false,
     });
-    console.log(signee.id);
-
     await inst.create([textBoxWidget, textField]);
   } else {
     const text = new PSPDFKit.Annotations.TextAnnotation({
@@ -242,39 +216,9 @@ const handleDrop = async (
       horizontalAlign: "left",
       verticalAlign: "top",
       isEditable: false,
-      //backgroundColor: signee.color,
     });
     await inst.create(text);
   }
-  // set the viewer to form creator mode so that the user can place the field
-  // inst.setViewState((viewState) =>
-  //   viewState.set("interactionMode", PSPDFKit.InteractionMode.FORM_CREATOR)
-  // );
-
-  // @ts-ignore
-  // inst.setOnAnnotationResizeStart((eve) => {
-  //   if (eve.annotation instanceof PSPDFKit.Annotations.WidgetAnnotation) {
-  //     return {
-  //       //maintainAspectRatio: true,
-  //       //responsive: false,
-  //       maxWidth: 250,
-  //       maxHeight: 100,
-  //       minWidth: 70,
-  //       minHeight: 30,
-  //     };
-  //   } else if (
-  //     eve.annotation instanceof PSPDFKit.Annotations.TextAnnotation
-  //   ) {
-  //     return {
-  //       //maintainAspectRatio: true,
-  //       //responsive: false,
-  //       maxWidth: 250,
-  //       maxHeight: 100,
-  //       minWidth: 70,
-  //       minHeight: 30,
-  //     };
-  //   }
-  // });
 };
 
 export default handleDrop;

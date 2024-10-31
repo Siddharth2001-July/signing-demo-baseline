@@ -215,7 +215,6 @@ const RedCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = ({ color }) => {
   try {
     // Parse the JSON string into an object
     const colorObject = JSON.parse(jsonString);
-    //console.log("Color: ", colorObject);
     return (
       <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
         <circle

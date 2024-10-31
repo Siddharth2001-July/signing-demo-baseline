@@ -70,44 +70,6 @@ export const handleAnnotatitonDelete = async (
             newAnnotation.node.className = "";
           }
         }
-
-        // if (
-        //   maybeCorrectAnnotation.customData?.type === AnnotationTypeEnum.DATE &&
-        //   maybeCorrectAnnotation?.customData?.signerEmail === myEmail
-        // ) {
-        //   // save the signDate in the customData of the annotation
-        //   //@ts-ignore
-        //   //const instance = document.pspdfkitInstance;
-        //   const annotation = maybeCorrectAnnotation.set("text", {
-        //     format: "plain",
-        //     value: "Date Signed",
-        //   });
-        //   const dateAnnotationRender = getAnnotationRenderers({
-        //     annotation: maybeCorrectAnnotation,
-        //   });
-        //   if (dateAnnotationRender?.node) {
-        //     dateAnnotationRender.node.querySelector(
-        //       ".custom-annotation-name"
-        //     ).innerHTML = "Date Signed";
-        //   }
-        //   dateAnnotationRender.node.className = "";
-        //   await instance.update(annotation);
-        //   await instance.save();
-        // } else if (
-        //   maybeCorrectAnnotation.customData?.type === AnnotationTypeEnum.NAME &&
-        //   maybeCorrectAnnotation?.customData?.signerEmail === myEmail
-        // ) {
-        //   //@ts-ignore
-        //   const instance = document.pspdfkitInstance;
-        //   const nameAnnotationRender = getAnnotationRenderers({
-        //     annotation: maybeCorrectAnnotation,
-        //   });
-
-        //   nameAnnotationRender.node.className = "";
-
-        //   await instance.update(maybeCorrectAnnotation);
-        //   await instance.save();
-        // }
       }
     }
   }
@@ -122,7 +84,6 @@ export async function imageToBlob(imageUrl: string): Promise<Blob> {
     const blob = await response.blob();
     return blob;
   } catch (error) {
-    console.error("Error fetching image:", error);
     throw error;
   }
 }
@@ -155,16 +116,12 @@ export const LoadingSpinner = () => (
 export const applyDSign = async (instance:any, containerRef:any, setIsLoading:any, setPdfUrl:any) => {
   setIsLoading(true);
   try {
-    console.log("Start signing");
     const doc = await instance.exportPDF();
-    console.log("PDF exported and sending for signing ", doc instanceof ArrayBuffer);
     const pdfBlob = new Blob([doc], { type: "application/pdf" });
     const imageBlob = await imageToBlob(`${window.location.protocol}//${window.location.host}/signed/watermark.jpg`);
     const formData = new FormData();
     formData.append('file', pdfBlob);
     formData.append('image', imageBlob);
-    //formData.append('graphicImage', imageBlob)
-    //res = await applyDigitalSignature(formData);
     const res = await fetch('./api/digitalSigningLite', {
       method:'POST',
       body: formData
@@ -179,7 +136,6 @@ export const applyDSign = async (instance:any, containerRef:any, setIsLoading:an
     else{
       alert("Error in signing");
     }
-    console.log("Response from signing", res);
   } catch (error) {
     console.error('Error caught in catch block:', error);
   } finally{

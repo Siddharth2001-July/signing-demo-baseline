@@ -39,9 +39,7 @@ function createDynamicSelect(
       .set("customData", customData)
       .set("backgroundColor", selectedObj.color);
 
-    instance.update(updatedAnnotation).then((updated: any) => {
-      console.log("Updated annotation", updated);
-    });
+    instance.update(updatedAnnotation).then((updated: any) => {});
   });
 
   // Create options dynamically

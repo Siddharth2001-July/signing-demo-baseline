@@ -171,7 +171,6 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({ allUsers, user }
           isEditableAnnotation: function (annotation:any) {
             return !annotation.isSignature;
           },
-          //annotationTooltipCallback: (annotation:any)=> duplicateAnnotationTooltipCallback(annotation, PSPDFKit, trackInst)
         }).then(async function (inst: any) {
           trackInst = inst;
           setInstance(inst);
