@@ -13,18 +13,18 @@ export const metadata = {
   title: "Sign App",
   description: "PSPDFKIt Signing Demo Sample Application",
   metadataBase: `http://localhost:${process.env.PORT || 3000}`,
-  link: {
-    rel: "icon",
-    href: NEXT_PUBLIC_BASE_PATH + "/favicon.ico",
-    sizes: "16x16",
-    type: "image/png",
-  },
   // link: {
   //   rel: "icon",
-  //   href: NEXT_PUBLIC_BASE_PATH + "/favicon-32x32.png",
-  //   sizes: "32x32",
+  //   href: NEXT_PUBLIC_BASE_PATH + "/favicon.ico?" + new Date().getTime(),
+  //   sizes: "16x16",
   //   type: "image/png",
   // },
+  link: {
+    rel: "icon",
+    href: NEXT_PUBLIC_BASE_PATH + "/favicon-32x32.png",
+    sizes: "32x32",
+    type: "image/png",
+  },
   // link: {
   //   rel: "icon",
   //   href: NEXT_PUBLIC_BASE_PATH + "/android-chrome-192x192.png",
