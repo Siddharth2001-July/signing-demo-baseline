@@ -8,16 +8,16 @@ import logo from "@/public/Nutrient_Logo.png";
 const inter = Inter({ subsets: ["latin"] });
 
 const NEXT_PUBLIC_BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH;
+const FAVICON_VERSION = process.env.NEXT_PUBLIC_DEPLOY_TIME || new Date().getTime();
 
 export const metadata = {
   title: "Sign App",
   description: "PSPDFKIt Signing Demo Sample Application",
   metadataBase: `http://localhost:${process.env.PORT || 3000}`,
-  link: {
+  ink: {
     rel: "icon",
-    href: NEXT_PUBLIC_BASE_PATH + "/favicon.ico?" + new Date().getTime(),
-    sizes: "48x48",
-    type: "image/png",
+    href: `${NEXT_PUBLIC_BASE_PATH}/favicon.ico?v=${FAVICON_VERSION}`,
+    type: "image/x-icon",
   },
   // link: {
   //   rel: "icon",
