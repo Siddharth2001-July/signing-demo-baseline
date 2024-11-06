@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
       },
       formFieldName: "DigitalSignature",
       signatureMetadata:{
-        signerName: "Signing Demo",
-        signatureReason: "Demo digital signature using PSPDFKit",
+        signerName: "Nutrient Sign App",
+        signatureReason: "Digital Signature using Nutrient's DWS API.",
         signatureLocation: "Planet Earth"
       },
     }));

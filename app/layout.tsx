@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ImageComponent from "next/image";
-import logo from "@/public/android-chrome-512x512.png";
+import logo from "@/public/Nutrient_Logo.png";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -105,18 +105,19 @@ export default function RootLayout({
         <nav style={{ display: "flex", alignItems: "center", margin: "10px" }}>
           <ImageComponent
             src={logo}
-            width={50}
+            width={150}
             className="inline-block"
             alt="plus icon"
           />
           <span
             style={{
-              fontSize: "22px",
+              fontSize: "25px",
               fontWeight: "500",
-              margin: "10px 10px",
+              margin: "15px 10px",
+              color: "black",
             }}
           >
-            PSPDFKit Sign App
+           Sign App
           </span>
         </nav>
         {children}

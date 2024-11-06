@@ -476,7 +476,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
             return !annotation.isSignature;
           },
           trustedCAsCallback: async () => {
-            let arrayBuffer;
+            let arrayBuffer : String[]= [];
             try {
               const response = await fetch('/api/digitalSigningLite', {
                 method: 'GET',
@@ -487,11 +487,13 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
               
               const apiRes = await response.json();
               console.log(apiRes);
-              arrayBuffer = atob(apiRes.data.data.ca_certificates[0]);
+              apiRes.data.data.ca_certificates.forEach((cert:string)=>{
+                arrayBuffer.push(atob(cert));
+              })
             } catch (e) {
               throw `Error ${e}`;
             }
-            return [arrayBuffer];
+            return [...arrayBuffer];
           }
         }).then(async function (inst: any) {
           trackInst = inst;
@@ -694,7 +696,7 @@ const SignDemo: React.FC<{ allUsers: User[]; user: User }> = ({
       const doc = await instance.exportPDF();
       console.log("PDF exported and sending for signing ", doc instanceof ArrayBuffer);
       const pdfBlob = new Blob([doc], { type: "application/pdf" });
-      const imageBlob = await imageToBlob(`${window.location.protocol}//${window.location.host}/signed/watermark.jpg`);
+      const imageBlob = await imageToBlob(`${window.location.protocol}//${window.location.host}/signed/logo.png`);
       const formData = new FormData();
       formData.append('file', pdfBlob);
       formData.append('image', imageBlob);
