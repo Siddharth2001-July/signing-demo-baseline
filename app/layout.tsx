@@ -21,7 +21,7 @@ export const metadata = {
   // },
   link: {
     rel: "icon",
-    href: NEXT_PUBLIC_BASE_PATH + "/favicon-32x32.png",
+    href: NEXT_PUBLIC_BASE_PATH + "/favicon-32x32.png?" + new Date().getTime(),
     sizes: "32x32",
     type: "image/png",
   },
