@@ -127,7 +127,7 @@ const App: React.FC = () => {
                 borderRadius: isChatOpen ? "10px" : "50%",
                 width: isChatOpen ? "35vh" : "8vh",
                 height: isChatOpen ? "60vh" : "8vh",
-                backgroundColor: "#4537de ",
+                backgroundColor: "#6EB579 ",
               }}
               onClick={() => {
                 setIsChatOpen(!isChatOpen);
